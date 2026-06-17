@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { premiumExamples } from "../data/premiumExamples";
+import PremiumFeatureModal from "../components/PremiumFeatureModal";
 
 const momNeeds = [
   {
@@ -30,32 +33,13 @@ const premiumVerify = [
   { icon: "🩺", label: "아동안전교육 수료" },
 ];
 
-const premiumFeatures = [
-  {
-    icon: "📸",
-    title: "활동 후 사진",
-    desc: "세션 중 활동 사진을 자동으로 받아보세요",
-    color: "from-violet-500 to-purple-600",
-  },
-  {
-    icon: "📝",
-    title: "활동일지 자동생성",
-    desc: "오늘 뭘 했는지 한눈에 정리된 일지",
-    color: "from-blue-500 to-cyan-500",
-  },
-  {
-    icon: "📍",
-    title: "실시간 위치 공유",
-    desc: "강사 도착·활동·종료까지 위치 확인",
-    color: "from-emerald-500 to-teal-500",
-  },
-  {
-    icon: "✨",
-    title: "AI 놀이영어 리포트",
-    desc: "아이가 배운 영어 표현을 AI가 요약",
-    color: "from-amber-500 to-orange-500",
-  },
-];
+const premiumFeatures = premiumExamples.map((e) => ({
+  id: e.id,
+  icon: e.icon,
+  title: e.title,
+  desc: e.summary,
+  color: e.color,
+}));
 
 const momVoices = [
   {
@@ -78,31 +62,10 @@ const momVoices = [
   },
 ];
 
-const roadmap = [
-  {
-    phase: "1단계",
-    period: "1–2개월",
-    title: "시범 서비스 런칭",
-    desc: "서울 주요 지역 50가구 데이터 확보, 기본·프리미엄 인증 체계 검증",
-    active: true,
-  },
-  {
-    phase: "2단계",
-    period: "3–4개월",
-    title: "콘텐츠 고도화",
-    desc: "놀이 키트 커리큘럼 전문가 참여, 구독 프리미엄 기능 정식 출시",
-    active: false,
-  },
-  {
-    phase: "3단계",
-    period: "5–6개월",
-    title: "전국 확장",
-    desc: "수도권·부산·대구 권역 확대, 누적 300가구 목표",
-    active: false,
-  },
-];
-
 export default function HomePage() {
+  const [selectedPremium, setSelectedPremium] = useState<string | null>(null);
+  const premiumExample = premiumExamples.find((e) => e.id === selectedPremium) ?? null;
+
   return (
     <div className="min-h-screen bg-[#fafafa]">
       {/* Hero */}
@@ -131,10 +94,10 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
-              to="/tutors"
+              to="/login"
               className="inline-flex items-center justify-center gap-2 bg-white text-blue-700 font-bold text-base px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all"
             >
-              강사 찾아보기
+              시작하기
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
@@ -281,15 +244,22 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {premiumFeatures.map((f) => (
-              <div key={f.title} className="bg-white/5 border border-white/10 rounded-3xl p-6 hover:bg-white/10 transition-colors">
+              <button
+                key={f.id}
+                onClick={() => setSelectedPremium(f.id)}
+                className="bg-white/5 border border-white/10 rounded-3xl p-6 hover:bg-white/10 transition-colors text-left"
+              >
                 <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${f.color} flex items-center justify-center text-2xl mb-4`}>
                   {f.icon}
                 </div>
                 <h3 className="font-black text-white text-lg mb-1">{f.title}</h3>
                 <p className="text-slate-400 text-sm">{f.desc}</p>
-              </div>
+                <p className="text-amber-400 text-xs font-semibold mt-2">예시 보기 →</p>
+              </button>
             ))}
           </div>
+
+          <PremiumFeatureModal example={premiumExample} onClose={() => setSelectedPremium(null)} />
 
           <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
@@ -297,10 +267,10 @@ export default function HomePage() {
               <p className="text-slate-400 text-sm">활동 사진 + 일지 + 위치공유 + AI 리포트 포함 · 수수료 0원</p>
             </div>
             <Link
-              to="/tutors"
+              to="/login"
               className="flex-shrink-0 bg-amber-400 hover:bg-amber-300 text-slate-900 font-black px-6 py-3 rounded-xl transition-colors"
             >
-              구독 시작하기
+              로그인 후 구독하기
             </Link>
           </div>
         </div>
@@ -352,52 +322,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 로드맵 */}
-      <section id="roadmap" className="py-20 px-5 bg-[#fafafa]">
-        <div className="max-w-5xl mx-auto">
-          <p className="text-sm font-bold text-blue-600 uppercase tracking-widest mb-2">Roadmap</p>
-          <h2 className="text-3xl font-black text-slate-900 mb-3">6개월 성장 로드맵</h2>
-          <p className="text-slate-500 mb-10 max-w-lg">
-            노코드 도구(Cursor)로 프로토타입을 이미 구축했고, 데이터 기반 인증 시스템으로 확장합니다.
-          </p>
-
-          <div className="space-y-4">
-            {roadmap.map((r) => (
-              <div
-                key={r.phase}
-                className={`flex gap-5 items-start bg-white rounded-2xl p-6 border ${
-                  r.active ? "border-blue-200 shadow-sm" : "border-slate-100"
-                }`}
-              >
-                <div className={`flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm ${
-                  r.active ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400"
-                }`}>
-                  {r.phase}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-black text-slate-900">{r.title}</h3>
-                    {r.active && (
-                      <span className="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">진행 중</span>
-                    )}
-                    <span className="text-xs text-slate-400 ml-auto">{r.period}</span>
-                  </div>
-                  <p className="text-slate-500 text-sm">{r.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 flex flex-wrap gap-2">
-            {["노코드 프로토타입 구축 완료", "데이터 기반 인증 시스템", "즉각 실행 중"].map((t) => (
-              <span key={t} className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
-                ✓ {t}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="py-20 px-5 bg-gradient-to-br from-indigo-600 to-blue-600">
         <div className="max-w-2xl mx-auto text-center">
@@ -409,10 +333,10 @@ export default function HomePage() {
             첫 세션은 언제든 취소 가능해요.
           </p>
           <Link
-            to="/tutors"
+            to="/login"
             className="inline-flex items-center gap-2 bg-white text-blue-700 font-black text-lg px-10 py-5 rounded-2xl shadow-xl hover:-translate-y-1 transition-all"
           >
-            강사 찾아보기
+            로그인 / 회원가입
           </Link>
         </div>
       </section>

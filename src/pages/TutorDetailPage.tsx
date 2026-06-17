@@ -102,8 +102,8 @@ export default function TutorDetailPage() {
         <div className="text-center">
           <div className="text-5xl mb-4">😕</div>
           <p className="text-slate-600 font-medium mb-4">튜터를 찾을 수 없어요</p>
-          <Link to="/tutors" className="text-blue-600 font-semibold hover:underline">
-            튜터 목록으로 돌아가기
+          <Link to="/parent/tutors" className="text-blue-600 font-semibold hover:underline">
+            강사 목록으로 돌아가기
           </Link>
         </div>
       </div>
@@ -142,9 +142,9 @@ export default function TutorDetailPage() {
       <div className="bg-white border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3">
           <nav className="flex items-center gap-2 text-sm text-slate-400">
-            <Link to="/" className="hover:text-blue-600">홈</Link>
+            <Link to="/parent" className="hover:text-blue-600">홈</Link>
             <span>/</span>
-            <Link to="/tutors" className="hover:text-blue-600">튜터 찾기</Link>
+            <Link to="/parent/tutors" className="hover:text-blue-600">강사 찾기</Link>
             <span>/</span>
             <span className="text-slate-700 font-medium">{tutor.name}</span>
           </nav>
@@ -378,152 +378,6 @@ export default function TutorDetailPage() {
               <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center gap-2 text-sm text-slate-500">
                 <CheckCircleIcon className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                 모든 후기는 실제 세션을 완료한 학부모님이 작성했습니다.
-              </div>
-            </div>
-
-            {/* ⑤ 서비스 고도화 비주얼 섹션 */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              {/* 헤더 */}
-              <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-5">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">🌱</div>
-                  <div>
-                    <p className="text-white font-black text-base">와요 서비스 고도화 계획</p>
-                    <p className="text-blue-100 text-xs">전문가와 함께 준비 중인 콘텐츠 미리보기</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-6 space-y-6">
-                {/* 놀이 키트 커리큘럼 */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="bg-amber-100 text-amber-700 text-xs font-black px-2.5 py-1 rounded-full">준비 중</span>
-                    <h3 className="font-black text-slate-800">전문가 협업 놀이 키트 커리큘럼</h3>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {[
-                      { track: "미술 트랙", icon: "🎨", desc: "수채화·아크릴·콜라주 8주 과정", weeks: "8주", coming: false },
-                      { track: "스포츠 트랙", icon: "⚽", desc: "실내 스포츠 활동 영어 어휘 연계", weeks: "8주", coming: false },
-                      { track: "쿠킹 트랙", icon: "🍳", desc: "안전 식재료 레시피 기반 STEAM", weeks: "6주", coming: true },
-                      { track: "코딩 트랙", icon: "🤖", desc: "언플러그드 코딩 + Scratch Jr.", weeks: "6주", coming: true },
-                    ].map((kit) => (
-                      <div key={kit.track} className="relative rounded-xl border border-slate-100 overflow-hidden group">
-                        {/* 이미지 영역 (placeholder) */}
-                        <div className={`h-24 flex items-center justify-center text-4xl ${
-                          kit.coming ? "bg-slate-100" : "bg-gradient-to-br from-amber-50 to-blue-50"
-                        }`}>
-                          {kit.icon}
-                          {kit.coming && (
-                            <div className="absolute inset-0 bg-slate-200/60 flex items-center justify-center">
-                              <span className="bg-slate-600 text-white text-xs font-bold px-2 py-1 rounded-full">Coming Soon</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-3">
-                          <p className="font-bold text-slate-800 text-xs mb-0.5">{kit.track}</p>
-                          <p className="text-slate-400 text-xs leading-tight">{kit.desc}</p>
-                          <p className="text-blue-600 text-xs font-bold mt-1">{kit.weeks} 과정</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-50" />
-
-                {/* 튜터 교육 매뉴얼 */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="bg-blue-100 text-blue-700 text-xs font-black px-2.5 py-1 rounded-full">개발 중</span>
-                    <h3 className="font-black text-slate-800">표준 튜터 교육 매뉴얼</h3>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {[
-                      {
-                        icon: "📖",
-                        title: "세션 운영 가이드",
-                        desc: "도입(5분) → 주활동(40분) → 마무리(15분) 표준 플로우",
-                        status: "Draft 완료",
-                        statusColor: "text-emerald-600",
-                        bg: "bg-emerald-50",
-                      },
-                      {
-                        icon: "🩺",
-                        title: "안전 대응 매뉴얼",
-                        desc: "응급 상황·알레르기·아동 행동 대응 가이드",
-                        status: "전문가 감수 중",
-                        statusColor: "text-blue-600",
-                        bg: "bg-blue-50",
-                      },
-                      {
-                        icon: "📊",
-                        title: "세션 보고서 템플릿",
-                        desc: "학부모에게 전달하는 활동 내용·영어 표현·다음 목표 리포트",
-                        status: "준비 중",
-                        statusColor: "text-amber-600",
-                        bg: "bg-amber-50",
-                      },
-                    ].map((manual) => (
-                      <div key={manual.title} className={`${manual.bg} rounded-xl p-4 border border-slate-100`}>
-                        {/* 매뉴얼 표지 모의 이미지 */}
-                        <div className="h-20 bg-white rounded-lg mb-3 flex flex-col items-center justify-center border border-slate-100 gap-1 shadow-inner">
-                          <span className="text-2xl">{manual.icon}</span>
-                          <span className="text-xs font-bold text-slate-400 text-center px-2 leading-tight">{manual.title}</span>
-                        </div>
-                        <p className="text-slate-600 text-xs leading-relaxed mb-2">{manual.desc}</p>
-                        <span className={`text-xs font-bold ${manual.statusColor}`}>● {manual.status}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-50" />
-
-                {/* 노코드 실행력 증명 */}
-                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-5">
-                  <p className="text-white font-black text-sm mb-3 flex items-center gap-2">
-                    ⚡ 즉각 실행력 — 지금 이 페이지가 증거입니다
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {[
-                      {
-                        icon: "💻",
-                        title: "노코드 프로토타입",
-                        desc: "Cursor(AI 코딩 도구)로 실제 예약 흐름까지 구현. 개발자 없이 창업자 직접 제작.",
-                        badge: "구현 완료",
-                        badgeColor: "bg-emerald-500",
-                      },
-                      {
-                        icon: "🔬",
-                        title: "데이터 기반 검증",
-                        desc: "기본·프리미엄 2단계 인증 체크리스트 데이터베이스화, 서류 상태 실시간 관리.",
-                        badge: "운영 중",
-                        badgeColor: "bg-blue-500",
-                      },
-                      {
-                        icon: "📱",
-                        title: "다음 단계: 앱 개발",
-                        desc: "6개월 로드맵 3단계에서 React Native 기반 모바일 앱 MVP 개발 착수 예정.",
-                        badge: "로드맵 포함",
-                        badgeColor: "bg-amber-500",
-                      },
-                    ].map((item) => (
-                      <div key={item.title} className="bg-white/10 rounded-xl p-3">
-                        <div className="flex items-start gap-2 mb-2">
-                          <span className="text-xl flex-shrink-0">{item.icon}</span>
-                          <div>
-                            <div className="flex items-center gap-1.5 mb-1">
-                              <span className="text-white font-bold text-xs">{item.title}</span>
-                              <span className={`${item.badgeColor} text-white text-xs font-black px-1.5 py-0.5 rounded-full leading-none`}>{item.badge}</span>
-                            </div>
-                            <p className="text-slate-300 text-xs leading-relaxed">{item.desc}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
           </div>

@@ -12,7 +12,7 @@ export default function TutorCard({ tutor }: Props) {
 
   return (
     <Link
-      to={`/tutors/${tutor.id}`}
+      to={`/parent/tutors/${tutor.id}`}
       className="bg-white rounded-3xl border border-slate-100 hover:border-blue-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 overflow-hidden group flex flex-col"
     >
       {/* Photo */}
@@ -47,7 +47,7 @@ export default function TutorCard({ tutor }: Props) {
           </div>
         </div>
 
-        <p className="text-slate-400 text-xs mb-3">{tutor.affiliation} · {tutor.role}</p>
+        <p className="text-slate-400 text-xs mb-3">{tutor.affiliation}</p>
 
         <div className="flex flex-wrap gap-1.5 mb-3">
           {tutor.specialties.slice(0, 3).map((s) => (
