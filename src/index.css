@@ -1,18 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #2563eb;
-  --color-primary-dark: #1d4ed8;
-  --color-primary-light: #dbeafe;
+  --color-primary: #4f46e5;
+  --color-primary-dark: #4338ca;
   --color-accent: #f59e0b;
-  --color-accent-dark: #d97706;
-  --color-accent-light: #fef3c7;
-  --color-warm: #fef9f0;
-  --font-family-sans: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-family-sans: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
 }
 
 body {
   font-family: var(--font-family-sans);
-  background-color: #f8fafc;
-  color: #1e293b;
+  background-color: #fafafa;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
 }

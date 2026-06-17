@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { tutors } from "../data/tutors";
+import { isBasicVerified, isPremiumVerified } from "../utils/verification";
 
 const MONTH_NAMES = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
@@ -46,30 +47,6 @@ const PACKAGES = [
 ];
 
 // SVG 아이콘
-function PassportIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <circle cx="12" cy="10" r="3" />
-      <path d="M7 21v-1a5 5 0 0 1 10 0v1" />
-    </svg>
-  );
-}
-function ShieldIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      <polyline points="9 12 11 14 15 10" />
-    </svg>
-  );
-}
-function MedicalIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M11 2a2 2 0 0 0-2 2v5H4a2 2 0 0 0-2 2v2c0 1.1.9 2 2 2h5v5c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2v-5h5a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-5V4a2 2 0 0 0-2-2h-2z" />
-    </svg>
-  );
-}
 function CheckCircleIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -85,40 +62,16 @@ function QuoteIcon({ className }: { className?: string }) {
   );
 }
 
-const verifyConfig = [
-  {
-    key: "visa" as const,
-    step: "STEP 1",
-    label: "비자 자동 검증 완료",
-    desc: "D-2(유학) 비자 소지 여부를 외국인등록증으로 확인합니다. 합법적 체류 자격을 갖춘 튜터만 등록됩니다.",
-    Icon: PassportIcon,
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-    border: "border-blue-200",
-    iconBg: "bg-blue-100",
-  },
-  {
-    key: "criminalCheck" as const,
-    step: "STEP 2",
-    label: "범죄이력 조회 완료",
-    desc: "경찰청 범죄경력 조회 결과를 직접 확인합니다. 아동·청소년 관련 범죄 이력이 없는 튜터만 등록됩니다.",
-    Icon: ShieldIcon,
-    color: "text-emerald-600",
-    bg: "bg-emerald-50",
-    border: "border-emerald-200",
-    iconBg: "bg-emerald-100",
-  },
-  {
-    key: "safetyTraining" as const,
-    step: "STEP 3",
-    label: "유아 안전교육 이수",
-    desc: "아동 안전 및 응급처치 교육 이수증을 검토합니다. 간호사 출신 운영자가 직접 심사합니다.",
-    Icon: MedicalIcon,
-    color: "text-rose-600",
-    bg: "bg-rose-50",
-    border: "border-rose-200",
-    iconBg: "bg-rose-100",
-  },
+const basicVerifyConfig = [
+  { key: "idCard" as const, label: "신분증 인증", desc: "유효 신분증으로 본인 확인", emoji: "🪪" },
+  { key: "selfie" as const, label: "셀카 얼굴인증", desc: "실시간 얼굴 매칭 인증", emoji: "🤳" },
+  { key: "visa" as const, label: "비자 확인", desc: "합법적 활동 가능 비자 소지", emoji: "🛂" },
+  { key: "affiliation" as const, label: "소속 확인", desc: "와요 공인 강사 소속 검증", emoji: "🏢" },
+];
+
+const premiumVerifyConfig = [
+  { key: "criminalRecord" as const, label: "본국 범죄경력증명", desc: "출신국 범죄경력 증명서 제출", emoji: "📋" },
+  { key: "safetyTraining" as const, label: "아동안전교육 수료", desc: "아동 안전·응급처치 교육 이수", emoji: "🩺" },
 ];
 
 function StarRow({ rating, size = "text-base" }: { rating: number; size?: string }) {
@@ -218,7 +171,7 @@ export default function TutorDetailPage() {
                       <div>
                         <h1 className="text-2xl font-black text-slate-800">{tutor.name}</h1>
                         <p className="text-blue-600 font-semibold text-sm">{tutor.nameKo}</p>
-                        <p className="text-slate-400 text-sm">{tutor.university} · {tutor.major}</p>
+                        <p className="text-slate-400 text-sm">{tutor.affiliation} · {tutor.role}</p>
                       </div>
                       <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl">
                         <span className="text-amber-400 text-lg">★</span>
@@ -246,48 +199,60 @@ export default function TutorDetailPage() {
               </div>
             </div>
 
-            {/* ② 3단계 안심 검증 — 핵심 섹션 */}
-            <div className="bg-white rounded-2xl border-2 border-blue-100 shadow-sm overflow-hidden">
-              <div className="bg-gradient-to-r from-slate-800 to-slate-700 px-6 py-4 flex items-center justify-between">
+            {/* ② 2단계 안심 인증 */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
                 <div>
-                  <p className="text-white font-black text-base flex items-center gap-2">
-                    🛡️ 와요 3단계 안심 검증
-                  </p>
-                  <p className="text-slate-300 text-xs mt-0.5">간호사 출신 운영자가 직접 심사한 신뢰 시스템</p>
+                  <p className="font-black text-slate-900">🛡️ 안심 인증 배지</p>
+                  <p className="text-slate-400 text-xs mt-0.5">기본 인증 필수 · 프리미엄 인증 선택</p>
                 </div>
-                <div className="bg-emerald-500 text-white text-xs font-black px-3 py-1.5 rounded-full">
-                  {[tutor.verified.visa, tutor.verified.criminalCheck, tutor.verified.safetyTraining].filter(Boolean).length}/3 완료
-                </div>
+                {isPremiumVerified(tutor) ? (
+                  <span className="text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full">⭐ 프리미엄 인증</span>
+                ) : isBasicVerified(tutor) ? (
+                  <span className="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full">✓ 기본 인증</span>
+                ) : null}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
-                {verifyConfig.map(({ key, step, label, desc, Icon, color, bg, border, iconBg }) => {
-                  const ok = tutor.verified[key];
-                  return (
-                    <div key={key} className={`p-5 ${ok ? bg : "bg-slate-50"} relative`}>
-                      {!ok && (
-                        <div className="absolute inset-0 bg-white/60 rounded flex items-center justify-center">
-                          <span className="text-slate-400 text-xs font-bold bg-slate-100 px-2 py-0.5 rounded-full">대기중</span>
+              <div className="p-6 space-y-5">
+                <div>
+                  <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-3">기본 인증 (가입 필수)</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {basicVerifyConfig.map(({ key, label, desc, emoji }) => {
+                      const ok = tutor.verified.basic[key];
+                      return (
+                        <div key={key} className={`rounded-xl p-3 border ${ok ? "bg-blue-50 border-blue-100" : "bg-slate-50 border-slate-100 opacity-50"}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span>{emoji}</span>
+                            <span className="text-sm font-bold text-slate-800">{label}</span>
+                            {ok && <span className="text-xs text-blue-600 font-bold ml-auto">✓</span>}
+                          </div>
+                          <p className="text-xs text-slate-500">{desc}</p>
                         </div>
-                      )}
-                      <div className="flex items-start gap-3">
-                        <div className={`w-11 h-11 ${ok ? iconBg : "bg-slate-100"} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                          <Icon className={`w-5 h-5 ${ok ? color : "text-slate-300"}`} />
+                      );
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-3">프리미엄 인증 (선택 · 더 높은 신뢰)</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {premiumVerifyConfig.map(({ key, label, desc, emoji }) => {
+                      const ok = tutor.verified.premium[key];
+                      return (
+                        <div key={key} className={`rounded-xl p-3 border ${ok ? "bg-amber-50 border-amber-100" : "bg-slate-50 border-slate-100"}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span>{emoji}</span>
+                            <span className="text-sm font-bold text-slate-800">{label}</span>
+                            {ok ? (
+                              <span className="text-xs text-amber-600 font-bold ml-auto">✓ 완료</span>
+                            ) : (
+                              <span className="text-xs text-slate-400 font-medium ml-auto">준비 중</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-500">{desc}</p>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className={`text-xs font-bold mb-0.5 ${ok ? color : "text-slate-400"}`}>{step}</p>
-                          <p className={`font-bold text-sm mb-1 ${ok ? "text-slate-800" : "text-slate-400"}`}>{label}</p>
-                          <p className={`text-xs leading-relaxed ${ok ? "text-slate-500" : "text-slate-300"}`}>{desc}</p>
-                          {ok && (
-                            <div className={`inline-flex items-center gap-1 mt-2 text-xs font-bold ${color} ${border} border rounded-full px-2 py-0.5`}>
-                              <CheckCircleIcon className="w-3.5 h-3.5" />
-                              검증 완료
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -486,8 +451,8 @@ export default function TutorDetailPage() {
                       {
                         icon: "🩺",
                         title: "안전 대응 매뉴얼",
-                        desc: "응급 상황·알레르기·아동 행동 대응 가이드 (간호사 감수)",
-                        status: "간호사 감수 중",
+                        desc: "응급 상황·알레르기·아동 행동 대응 가이드",
+                        status: "전문가 감수 중",
                         statusColor: "text-blue-600",
                         bg: "bg-blue-50",
                       },
@@ -532,7 +497,7 @@ export default function TutorDetailPage() {
                       {
                         icon: "🔬",
                         title: "데이터 기반 검증",
-                        desc: "비자·범죄이력·안전교육 3단계 체크리스트 데이터베이스화, 서류 상태 실시간 관리.",
+                        desc: "기본·프리미엄 2단계 인증 체크리스트 데이터베이스화, 서류 상태 실시간 관리.",
                         badge: "운영 중",
                         badgeColor: "bg-blue-500",
                       },
@@ -693,6 +658,17 @@ export default function TutorDetailPage() {
                       })}
                     </div>
 
+                    {(selectedPackage === "monthly4" || selectedPackage === "monthly8") && (
+                      <div className="mt-3 bg-indigo-50 border border-indigo-100 rounded-xl p-3">
+                        <p className="text-xs font-bold text-indigo-700 mb-2">✨ 월정기권 프리미엄 혜택 포함</p>
+                        <div className="grid grid-cols-2 gap-1.5 text-[11px] text-indigo-600 font-medium">
+                          {["활동 후 사진", "활동일지 자동생성", "실시간 위치 공유", "AI 놀이영어 리포트"].map((f) => (
+                            <span key={f}>✓ {f}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* 영어유치원 비교 */}
                     <div className="mt-3 bg-slate-50 rounded-xl p-3 text-xs text-slate-500 flex items-center justify-between">
                       <span>영어유치원 월 비용</span>
@@ -833,19 +809,19 @@ export default function TutorDetailPage() {
 
             {/* 안심 보장 카드 */}
             <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-5 text-white">
-              <p className="font-black text-sm mb-3">🏥 와요 안심 보장</p>
+              <p className="font-black text-sm mb-3">🛡️ 와요 안심 보장</p>
               <ul className="space-y-2 text-xs text-blue-100">
                 <li className="flex items-start gap-2">
                   <CheckCircleIcon className="w-4 h-4 text-blue-300 flex-shrink-0 mt-0.5" />
-                  비자·범죄이력·안전교육 3단계 검증 완료된 튜터만 등록
+                  신분증·얼굴·비자·소속 기본 인증 완료 강사만 등록
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircleIcon className="w-4 h-4 text-blue-300 flex-shrink-0 mt-0.5" />
-                  수수료 0원, 튜터와 직접 거래
+                  월정기권 구독 시 활동사진·일지·위치·AI 리포트 제공
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircleIcon className="w-4 h-4 text-blue-300 flex-shrink-0 mt-0.5" />
-                  간호사 출신 운영자의 사후 품질 관리
+                  수수료 0원, 강사와 직접 거래
                 </li>
               </ul>
             </div>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { tutors } from "../data/tutors";
 import TutorCard from "../components/TutorCard";
+import { isPremiumVerified } from "../utils/verification";
 
 const specialtyOptions = ["전체", "미술", "놀이", "스포츠", "음악", "쿠킹", "코딩", "동화책"];
 const sortOptions = [
@@ -13,16 +14,14 @@ const sortOptions = [
 export default function TutorListPage() {
   const [selectedSpecialty, setSelectedSpecialty] = useState("전체");
   const [sortBy, setSortBy] = useState("rating");
-  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [premiumOnly, setPremiumOnly] = useState(false);
 
   const filtered = tutors
     .filter((t) => {
       if (selectedSpecialty !== "전체") {
         if (!t.specialties.some((s) => s.includes(selectedSpecialty))) return false;
       }
-      if (verifiedOnly) {
-        if (!t.verified.visa || !t.verified.criminalCheck || !t.verified.safetyTraining) return false;
-      }
+      if (premiumOnly && !isPremiumVerified(t)) return false;
       return true;
     })
     .sort((a, b) => {
@@ -36,11 +35,11 @@ export default function TutorListPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Page Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-          <h1 className="text-3xl font-black mb-2">검증된 튜터 찾기</h1>
-          <p className="text-blue-100">
-            모든 튜터는 비자·범죄이력·안전교육 3단계 검증을 거쳤어요
+      <div className="bg-slate-900 text-white">
+        <div className="max-w-5xl mx-auto px-5 py-10">
+          <h1 className="text-3xl font-black mb-2">검증된 원어민 강사</h1>
+          <p className="text-slate-400 text-sm">
+            기본 인증 4종 완료 강사 · 프리미엄 인증은 더 높은 안심 수준
           </p>
         </div>
       </div>
@@ -73,18 +72,18 @@ export default function TutorListPage() {
             <div className="flex items-center gap-3 flex-wrap">
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <div
-                  onClick={() => setVerifiedOnly(!verifiedOnly)}
+                  onClick={() => setPremiumOnly(!premiumOnly)}
                   className={`w-10 h-6 rounded-full transition-colors relative ${
-                    verifiedOnly ? "bg-emerald-500" : "bg-slate-200"
+                    premiumOnly ? "bg-amber-500" : "bg-slate-200"
                   }`}
                 >
                   <span
                     className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                      verifiedOnly ? "translate-x-5" : "translate-x-1"
+                      premiumOnly ? "translate-x-5" : "translate-x-1"
                     }`}
                   />
                 </div>
-                <span className="text-sm font-medium text-slate-600">전체 인증만 보기</span>
+                <span className="text-sm font-medium text-slate-600">프리미엄 인증만</span>
               </label>
               <select
                 value={sortBy}
@@ -118,7 +117,7 @@ export default function TutorListPage() {
             <div className="text-5xl mb-4">🔍</div>
             <p className="text-slate-500 font-medium">해당 조건의 튜터가 없어요</p>
             <button
-              onClick={() => { setSelectedSpecialty("전체"); setVerifiedOnly(false); }}
+              onClick={() => { setSelectedSpecialty("전체"); setPremiumOnly(false); }}
               className="mt-4 text-blue-600 font-semibold text-sm hover:underline"
             >
               필터 초기화
@@ -127,14 +126,14 @@ export default function TutorListPage() {
         )}
 
         {/* Safety Banner */}
-        <div className="mt-12 bg-gradient-to-r from-emerald-50 to-blue-50 border border-emerald-100 rounded-2xl p-6">
+        <div className="mt-12 bg-blue-50 border border-blue-100 rounded-2xl p-6">
           <div className="flex items-start gap-4">
-            <span className="text-3xl mt-0.5">🛡️</span>
+            <span className="text-2xl">🛡️</span>
             <div>
-              <h3 className="font-bold text-slate-800 mb-1">안심하고 이용하세요</h3>
+              <h3 className="font-bold text-slate-800 mb-1">2단계 안심 인증</h3>
               <p className="text-slate-600 text-sm leading-relaxed">
-                와요의 모든 튜터는 등록 전 <strong>비자 확인 → 범죄이력 조회 → 안전교육 이수</strong>의 3단계 검증을 통과합니다.
-                간호사 출신 운영자가 직접 서류를 심사하며, 안전교육 미이수 튜터는 별도로 표시됩니다.
+                모든 강사는 <strong>신분증·얼굴·비자·소속</strong> 기본 인증을 거칩니다.
+                프리미엄 인증 강사는 <strong>본국 범죄경력증명·아동안전교육</strong>까지 완료했어요.
               </p>
             </div>
           </div>
