@@ -6,6 +6,7 @@ const menu = [
   { to: "/admin/tutors", label: "강사 관리", icon: "👩‍🏫" },
   { to: "/admin/users", label: "회원 관리", icon: "👨‍👩‍👧" },
   { to: "/admin/verifications", label: "인증 심사", icon: "🛡️" },
+  { to: "/admin/kits", label: "키트·정산", icon: "🎨" },
 ];
 
 export default function AdminLayout() {

@@ -19,6 +19,7 @@ import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminTutorsPage from "./pages/admin/AdminTutorsPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminVerificationsPage from "./pages/admin/AdminVerificationsPage";
+import AdminKitsPage from "./pages/admin/AdminKitsPage";
 
 function RootRedirect() {
   const { user } = useAuth();
@@ -58,6 +59,7 @@ export default function App() {
             <Route path="tutors" element={<AdminTutorsPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="verifications" element={<AdminVerificationsPage />} />
+            <Route path="kits" element={<AdminKitsPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

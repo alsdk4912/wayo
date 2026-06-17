@@ -8,6 +8,9 @@ export interface Booking {
   status: "confirmed" | "completed" | "pending";
   package: string;
   childName: string;
+  kitIncluded?: boolean;
+  kitWeek?: number;
+  kitPrice?: number;
 }
 
 export const bookings: Booking[] = [
@@ -21,6 +24,9 @@ export const bookings: Booking[] = [
     status: "confirmed",
     package: "월 4회 정기권",
     childName: "지우 (7세)",
+    kitIncluded: true,
+    kitWeek: 3,
+    kitPrice: 12000,
   },
   {
     id: "b2",
@@ -32,6 +38,9 @@ export const bookings: Booking[] = [
     status: "completed",
     package: "월 4회 정기권",
     childName: "지우 (7세)",
+    kitIncluded: true,
+    kitWeek: 2,
+    kitPrice: 12000,
   },
   {
     id: "b3",
@@ -57,6 +66,9 @@ export const tutorSessions: Booking[] = [
     status: "confirmed",
     package: "월 4회",
     childName: "지우 (7세) · 마포구",
+    kitIncluded: true,
+    kitWeek: 3,
+    kitPrice: 12000,
   },
   {
     id: "b4",
@@ -68,6 +80,9 @@ export const tutorSessions: Booking[] = [
     status: "confirmed",
     package: "월 4회",
     childName: "서준 (6세) · 용산구",
+    kitIncluded: true,
+    kitWeek: 4,
+    kitPrice: 12000,
   },
   {
     id: "b2",
@@ -79,5 +94,8 @@ export const tutorSessions: Booking[] = [
     status: "completed",
     package: "월 4회",
     childName: "지우 (7세) · 마포구",
+    kitIncluded: true,
+    kitWeek: 2,
+    kitPrice: 12000,
   },
 ];

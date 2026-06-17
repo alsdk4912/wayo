@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { premiumExamples } from "../data/premiumExamples";
+import { artKit } from "../data/kits";
 import PremiumFeatureModal from "../components/PremiumFeatureModal";
 
 const momNeeds = [
@@ -221,6 +222,41 @@ export default function HomePage() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* 와요 공식 미술 키트 */}
+      <section className="py-20 px-5 bg-gradient-to-b from-amber-50 to-white">
+        <div className="max-w-5xl mx-auto">
+          <p className="text-sm font-bold text-amber-600 uppercase tracking-widest mb-2">Official Kit</p>
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-3">
+            강사 준비 없이, 표준 미술 커리큘럼
+          </h2>
+          <p className="text-slate-500 max-w-xl mb-10">
+            미술학원 원장이 직접 제작한 주차별 교구·재료. 예약 시 키트 포함을 선택하면
+            강사가 매번 재료를 준비할 필요 없이 일관된 수업 품질을 보장합니다.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            {[
+              { icon: "📦", title: "주차별 교구 키트", desc: `8주 과정 · 회당 ₩${artKit.pricePerWeek.toLocaleString()}` },
+              { icon: "📖", title: "커리큘럼 가이드", desc: "강사용 수업 플로우·영어 표현 포함" },
+              { icon: "🤝", title: "파트너 제작", desc: artKit.partner },
+            ].map((item) => (
+              <div key={item.title} className="bg-white rounded-2xl p-5 border border-amber-100 shadow-sm">
+                <span className="text-2xl mb-3 block">{item.icon}</span>
+                <p className="font-bold text-slate-800 mb-1">{item.title}</p>
+                <p className="text-sm text-slate-500">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <Link
+            to="/login"
+            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-xl transition-colors"
+          >
+            로그인 후 키트 포함 예약하기 →
+          </Link>
         </div>
       </section>
 

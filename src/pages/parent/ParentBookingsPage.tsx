@@ -28,6 +28,9 @@ export default function ParentBookingsPage() {
               <p>📅 {b.date} {b.time}</p>
               <p>👶 {b.childName}</p>
               <p>📦 {b.package}</p>
+              {b.kitIncluded && (
+                <p className="text-amber-700 font-medium">🎨 미술 키트 {b.kitWeek}주차 · ₩{b.kitPrice?.toLocaleString()}</p>
+              )}
             </div>
             {b.status === "completed" && (
               <div className="mt-3 pt-3 border-t border-slate-50 flex gap-2">

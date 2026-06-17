@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { tutors } from "../data/tutors";
+import { artKit, supportsArtKit } from "../data/kits";
 import { isBasicVerified, isPremiumVerified } from "../utils/verification";
+import KitWeekPreview from "../components/KitWeekPreview";
 
 const MONTH_NAMES = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
@@ -94,6 +96,9 @@ export default function TutorDetailPage() {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedPackage, setSelectedPackage] = useState("monthly4");
+  const [includeKit, setIncludeKit] = useState(false);
+  const [selectedKitWeek, setSelectedKitWeek] = useState(1);
+  const [showKitPreview, setShowKitPreview] = useState(false);
   const [bookingStep, setBookingStep] = useState<"select" | "confirm" | "done">("select");
 
   if (!tutor) {
@@ -126,7 +131,10 @@ export default function TutorDetailPage() {
   const pkg = PACKAGES.find((p) => p.id === selectedPackage)!;
   const basePrice = tutor.hourlyRate * pkg.sessions;
   const discountAmt = Math.round(basePrice * pkg.discount / 100);
-  const finalPrice = basePrice - discountAmt;
+  const sessionPrice = basePrice - discountAmt;
+  const kitTotal = includeKit ? artKit.pricePerWeek * pkg.sessions : 0;
+  const finalPrice = sessionPrice + kitTotal;
+  const hasArtKit = supportsArtKit(tutor.specialties);
   const kgPrice = 1500000; // 영어유치원 월 비용 기준
 
   // 별점 분포 계산
@@ -396,6 +404,7 @@ export default function TutorDetailPage() {
                   <p className="text-slate-500 text-sm mb-4">
                     {calYear}년 {MONTH_NAMES[calMonth]} {selectedDay}일<br />
                     {selectedTime} · {pkg.label}
+                    {includeKit && <><br />🎨 와요 공식 미술 키트 {selectedKitWeek}주차 포함</>}
                   </p>
                   <div className="bg-blue-50 rounded-xl p-4 text-left mb-4">
                     <p className="text-blue-800 text-xs font-bold mb-1">📱 다음 단계</p>
@@ -439,6 +448,16 @@ export default function TutorDetailPage() {
                         <span className="font-semibold text-emerald-600">-₩{discountAmt.toLocaleString()}</span>
                       </div>
                     )}
+                    {includeKit && (
+                      <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                        <span className="text-slate-500">미술 키트 × {pkg.sessions}회</span>
+                        <span className="font-semibold text-amber-700">₩{kitTotal.toLocaleString()}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center py-2 border-b border-slate-50">
+                      <span className="text-slate-500">수업료 소계</span>
+                      <span className="font-semibold text-slate-800">₩{sessionPrice.toLocaleString()}</span>
+                    </div>
                     <div className="flex justify-between items-center py-2">
                       <span className="font-bold text-slate-800">결제 예정 금액</span>
                       <span className="font-black text-blue-600 text-lg">₩{finalPrice.toLocaleString()}</span>
@@ -528,10 +547,69 @@ export default function TutorDetailPage() {
                       <span>영어유치원 월 비용</span>
                       <div className="text-right">
                         <p className="line-through text-slate-400">₩{kgPrice.toLocaleString()}</p>
-                        <p className="text-emerald-600 font-bold">와요 {Math.round((1 - finalPrice / kgPrice) * 100)}% 절약</p>
+                        <p className="text-emerald-600 font-bold">와요 {Math.round((1 - sessionPrice / kgPrice) * 100)}% 절약</p>
                       </div>
                     </div>
                   </div>
+
+                  {/* 와요 공식 미술 키트 */}
+                  {hasArtKit && (
+                    <div className="p-5 border-b border-slate-100">
+                      <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                          <span>🎨</span> 와요 공식 미술 키트
+                        </h2>
+                        <button
+                          type="button"
+                          onClick={() => setIncludeKit(!includeKit)}
+                          className={`relative w-11 h-6 rounded-full transition-colors ${includeKit ? "bg-amber-500" : "bg-slate-200"}`}
+                        >
+                          <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${includeKit ? "left-5" : "left-0.5"}`} />
+                        </button>
+                      </div>
+
+                      <p className="text-xs text-slate-500 mb-3 leading-relaxed">
+                        {artKit.partner} 제작 · 강사 준비 없이 표준 커리큘럼으로 진행
+                      </p>
+
+                      {includeKit ? (
+                        <div className="space-y-3">
+                          <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 flex justify-between items-center">
+                            <div>
+                              <p className="text-sm font-bold text-amber-900">{artKit.name}</p>
+                              <p className="text-xs text-amber-700">{artKit.track}</p>
+                            </div>
+                            <p className="font-black text-amber-800">₩{artKit.pricePerWeek.toLocaleString()}/회</p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => setShowKitPreview(!showKitPreview)}
+                            className="text-xs font-bold text-blue-600 hover:underline"
+                          >
+                            {showKitPreview ? "주차별 미리보기 닫기" : "주차별 커리큘럼 미리보기 →"}
+                          </button>
+
+                          {showKitPreview && (
+                            <KitWeekPreview
+                              weeks={artKit.weeks}
+                              selectedWeek={selectedKitWeek}
+                              onSelectWeek={setSelectedKitWeek}
+                              compact
+                            />
+                          )}
+
+                          <p className="text-[11px] text-slate-400">
+                            시작 주차: {selectedKitWeek}주차 · 패키지 {pkg.sessions}회 = 키트 ₩{kitTotal.toLocaleString()}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-400 bg-slate-50 rounded-xl p-3">
+                          키트 미포함 시 강사가 자체 재료로 진행합니다.
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   {/* 캘린더 */}
                   <div className="p-5 border-b border-slate-100">
@@ -623,6 +701,12 @@ export default function TutorDetailPage() {
                           <div className="flex justify-between text-emerald-600 font-semibold">
                             <span>정기권 {pkg.discount}% 할인</span>
                             <span>-₩{discountAmt.toLocaleString()}</span>
+                          </div>
+                        )}
+                        {includeKit && (
+                          <div className="flex justify-between text-amber-700 font-semibold">
+                            <span>미술 키트 {pkg.sessions}회</span>
+                            <span>₩{kitTotal.toLocaleString()}</span>
                           </div>
                         )}
                         <div className="flex justify-between font-black text-slate-800 text-sm border-t border-slate-200 pt-1 mt-1">
