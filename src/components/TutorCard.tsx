@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import type { Tutor } from "../data/tutors";
+import { getParentVerificationSummary } from "../data/teacherVerification";
 import { isBasicVerified, isPremiumVerified, BASIC_VERIFY_ITEMS, PREMIUM_VERIFY_ITEMS } from "../utils/verification";
+import TeacherVerificationBadge from "./TeacherVerificationBadge";
 import Icon from "./ui/Icon";
 import StatusBadge from "./ui/StatusBadge";
 
@@ -11,6 +13,7 @@ interface Props {
 export default function TutorCard({ tutor }: Props) {
   const basicOk = isBasicVerified(tutor);
   const premiumOk = isPremiumVerified(tutor);
+  const platformVerification = getParentVerificationSummary(tutor.id);
 
   return (
     <Link
@@ -23,7 +26,8 @@ export default function TutorCard({ tutor }: Props) {
           alt={tutor.name}
           className="w-full h-44 object-cover group-hover:scale-[1.02] transition-transform duration-300"
         />
-        <div className="absolute top-3 left-3">
+        <div className="absolute top-3 left-3 flex flex-col gap-1">
+          <TeacherVerificationBadge status={platformVerification.status} />
           {premiumOk ? (
             <StatusBadge variant="premium" label="프리미엄 인증" />
           ) : basicOk ? (

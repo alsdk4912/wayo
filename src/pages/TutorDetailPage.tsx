@@ -6,7 +6,9 @@ import { artKit, supportsArtKit } from "../data/kits";
 import { isBasicVerified, isPremiumVerified } from "../utils/verification";
 import { createMatchingRequest } from "../data/matching";
 import { createBookingRequest } from "../data/bookings";
+import { canTutorAcceptMatching } from "../data/teacherVerification";
 import KitWeekPreview from "../components/KitWeekPreview";
+import TeacherVerificationParentCard from "../components/TeacherVerificationParentCard";
 import Icon from "../components/ui/Icon";
 import SectionHeading from "../components/ui/SectionHeading";
 import StatusBadge from "../components/ui/StatusBadge";
@@ -111,6 +113,9 @@ export default function TutorDetailPage() {
   const [matchingChildSummary, setMatchingChildSummary] = useState("");
   const [matchingNote, setMatchingNote] = useState("");
   const [matchingMessage, setMatchingMessage] = useState("");
+  const [bookingError, setBookingError] = useState("");
+
+  const matchingAllowed = tutor ? canTutorAcceptMatching(tutor.id).ok : false;
 
   if (!tutor) {
     return (
@@ -219,6 +224,9 @@ export default function TutorDetailPage() {
                 </div>
               </div>
             </div>
+
+            {/* 플랫폼 확인 절차 (보호자용) */}
+            <TeacherVerificationParentCard teacherId={tutor.id} />
 
             {/* ② 2단계 안심 인증 */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
@@ -483,9 +491,11 @@ export default function TutorDetailPage() {
                   </div>
 
                   <button
+                    disabled={!matchingAllowed}
                     onClick={() => {
                       if (!user || !selectedTime || !bookingDate) return;
-                      createBookingRequest({
+                      setBookingError("");
+                      const result = createBookingRequest({
                         parentId: user.id,
                         tutorId: tutor.id,
                         tutorName: tutor.name,
@@ -497,12 +507,17 @@ export default function TutorDetailPage() {
                         kitWeek: includeKit ? selectedKitWeek : undefined,
                         kitPrice: includeKit ? artKit.pricePerWeek : undefined,
                       });
+                      if (!result.ok) {
+                        setBookingError(result.message);
+                        return;
+                      }
                       setBookingStep("done");
                     }}
-                    className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-base shadow-lg hover:shadow-xl transition-all"
+                    className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-base shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     예약 요청 보내기
                   </button>
+                  {bookingError && <p className="text-xs text-red-600 text-center mt-2">{bookingError}</p>}
                   <p className="text-center text-xs text-slate-400 mt-2">첫 세션 24시간 전까지 무료 취소 가능</p>
                 </div>
               ) : (
@@ -527,24 +542,38 @@ export default function TutorDetailPage() {
                       />
                       <button
                         type="button"
+                        disabled={!matchingAllowed}
                         onClick={() => {
                           if (!user) return;
-                          createMatchingRequest({
+                          const result = createMatchingRequest({
                             parentId: user.id,
                             tutorId: tutor.id,
                             tutorName: tutor.name,
                             childSummary: matchingChildSummary,
                             requestNote: matchingNote,
                           });
+                          if (!result.ok) {
+                            setMatchingMessage(result.message);
+                            return;
+                          }
                           setMatchingMessage("매칭 신청이 접수되었습니다.");
                           setMatchingChildSummary("");
                           setMatchingNote("");
                         }}
-                        className="w-full py-2.5 rounded-xl border border-blue-200 text-blue-700 bg-blue-50 font-bold text-sm hover:bg-blue-100"
+                        className="w-full py-2.5 rounded-xl border border-blue-200 text-blue-700 bg-blue-50 font-bold text-sm hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         매칭 신청하기
                       </button>
-                      {matchingMessage && <p className="text-xs text-emerald-600 font-medium">{matchingMessage}</p>}
+                      {matchingMessage && (
+                        <p className={`text-xs font-medium ${matchingAllowed && matchingMessage.includes("접수") ? "text-emerald-600" : "text-red-600"}`}>
+                          {matchingMessage}
+                        </p>
+                      )}
+                      {!matchingAllowed && (
+                        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+                          {canTutorAcceptMatching(tutor.id).message}
+                        </p>
+                      )}
                     </div>
                   </div>
 

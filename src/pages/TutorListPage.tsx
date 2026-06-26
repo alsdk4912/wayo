@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { getTutors } from "../data/tutors";
+import { isTutorVisibleInSearch } from "../data/teacherVerification";
 import TutorCard from "../components/TutorCard";
 import { isPremiumVerified } from "../utils/verification";
 import Icon from "../components/ui/Icon";
@@ -20,6 +21,7 @@ export default function TutorListPage() {
   const tutors = getTutors();
 
   const filtered = tutors
+    .filter((t) => isTutorVisibleInSearch(t.id))
     .filter((t) => {
       if (selectedSpecialty !== "전체") {
         if (!t.specialties.some((s) => s.includes(selectedSpecialty))) return false;

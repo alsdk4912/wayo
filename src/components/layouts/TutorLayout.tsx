@@ -6,6 +6,7 @@ import TabBar, { type TabItem } from "../ui/TabBar";
 const tabs: TabItem[] = [
   { to: "/tutor", label: "홈", icon: "home", exact: true },
   { to: "/tutor/profile", label: "프로필", icon: "profile" },
+  { to: "/tutor/verification", label: "검증", icon: "shield" },
   { to: "/tutor/schedule", label: "일정", icon: "calendar" },
   { to: "/tutor/sessions", label: "세션", icon: "check-circle" },
 ];

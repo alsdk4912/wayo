@@ -5,6 +5,8 @@ import { getTutorById } from "../../data/tutors";
 import { getTutorSessions } from "../../data/bookings";
 import { artKit, kitOrders } from "../../data/kits";
 import { isBasicVerified, isPremiumVerified } from "../../utils/verification";
+import { getVerificationByTeacherId } from "../../data/teacherVerification";
+import TeacherVerificationBadge from "../../components/TeacherVerificationBadge";
 import CurriculumGuideModal from "../../components/CurriculumGuideModal";
 import StatusBadge from "../../components/ui/StatusBadge";
 
@@ -63,6 +65,16 @@ export default function TutorDashboardPage() {
           <p className="text-[10px] text-slate-500">이번달 예상</p>
         </div>
       </div>
+
+      {user?.tutorId && (
+        <Link to="/tutor/verification" className="card p-4 flex items-center justify-between hover:border-primary/30">
+          <div>
+            <p className="text-sm font-semibold text-foreground">강사 검증 서류</p>
+            <p className="text-xs text-muted mt-0.5">신분·체류자격 확인 절차 제출</p>
+          </div>
+          <TeacherVerificationBadge status={getVerificationByTeacherId(user.tutorId)?.status ?? "NOT_SUBMITTED"} />
+        </Link>
+      )}
 
       {/* 다음 세션 키트 주문 */}
       <section className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-100 overflow-hidden">

@@ -17,10 +17,12 @@ import TutorDashboardPage from "./pages/tutor/TutorDashboardPage";
 import TutorSchedulePage from "./pages/tutor/TutorSchedulePage";
 import TutorSessionsPage from "./pages/tutor/TutorSessionsPage";
 import TutorProfileSetupPage from "./pages/tutor/TutorProfileSetupPage";
+import TutorVerificationPage from "./pages/tutor/TutorVerificationPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminTutorsPage from "./pages/admin/AdminTutorsPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminVerificationsPage from "./pages/admin/AdminVerificationsPage";
+import AdminVerificationDetailPage from "./pages/admin/AdminVerificationDetailPage";
 import AdminKitsPage from "./pages/admin/AdminKitsPage";
 
 function RootRedirect() {
@@ -54,6 +56,7 @@ export default function App() {
           <Route path="/tutor" element={<ProtectedRoute allowed={["tutor"]}><TutorLayout /></ProtectedRoute>}>
             <Route index element={<TutorDashboardPage />} />
             <Route path="profile" element={<TutorProfileSetupPage />} />
+            <Route path="verification" element={<TutorVerificationPage />} />
             <Route path="schedule" element={<TutorSchedulePage />} />
             <Route path="sessions" element={<TutorSessionsPage />} />
           </Route>
@@ -63,6 +66,7 @@ export default function App() {
             <Route path="tutors" element={<AdminTutorsPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="verifications" element={<AdminVerificationsPage />} />
+            <Route path="verifications/:teacherId" element={<AdminVerificationDetailPage />} />
             <Route path="kits" element={<AdminKitsPage />} />
           </Route>
 

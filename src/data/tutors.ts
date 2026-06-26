@@ -1,3 +1,5 @@
+import { ensureVerificationRecord } from "./teacherVerification";
+
 export interface Review {
   id: number;
   parentName: string;
@@ -478,7 +480,7 @@ export function upsertTutorProfile(
     intro: profile.intro.trim(),
     longIntro: profile.longIntro.trim(),
     verified: existing?.verified ?? {
-      basic: { idCard: true, selfie: true, visa: true, affiliation: true },
+      basic: { idCard: false, selfie: false, visa: false, affiliation: false },
       premium: { criminalRecord: false, safetyTraining: false },
     },
     availableSlots: profile.availableSlots,
@@ -493,6 +495,7 @@ export function upsertTutorProfile(
     ? list.map((t) => (t.id === existing.id ? nextTutor : t))
     : [...list, nextTutor];
   saveTutors(merged);
+  ensureVerificationRecord(nextId);
   return nextTutor;
 }
 

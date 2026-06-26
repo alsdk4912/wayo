@@ -1,3 +1,5 @@
+import { canTutorAcceptMatching } from "./teacherVerification";
+
 export interface Booking {
   id: string;
   parentId: string;
@@ -11,6 +13,7 @@ export interface Booking {
   kitIncluded?: boolean;
   kitWeek?: number;
   kitPrice?: number;
+  needsVerificationReview?: boolean;
 }
 
 const DEFAULT_BOOKINGS: Booking[] = [
@@ -94,6 +97,10 @@ interface BookingRequestInput {
 }
 
 export function createBookingRequest(input: BookingRequestInput) {
+  const check = canTutorAcceptMatching(input.tutorId);
+  if (!check.ok) {
+    return { ok: false as const, message: check.message ?? "예약을 생성할 수 없습니다." };
+  }
   const list = getBookings();
   const nextBooking: Booking = {
     id: `b-${Date.now()}`,
@@ -111,7 +118,23 @@ export function createBookingRequest(input: BookingRequestInput) {
   };
   const merged = [nextBooking, ...list];
   saveBookings(merged);
-  return nextBooking;
+  return { ok: true as const, booking: nextBooking };
+}
+
+export function getBookingsNeedingVerificationReview() {
+  return getBookings().filter(
+    (b) => b.needsVerificationReview && b.status !== "cancelled" && b.status !== "completed"
+  );
+}
+
+export function flagBookingsForTutorVerificationReview(tutorId: number) {
+  const list = getBookings();
+  const merged = list.map((b) =>
+    b.tutorId === tutorId && b.status !== "cancelled" && b.status !== "completed"
+      ? { ...b, needsVerificationReview: true }
+      : b
+  );
+  saveBookings(merged);
 }
 
 export function updateBookingStatus(bookingId: string, status: Booking["status"]) {

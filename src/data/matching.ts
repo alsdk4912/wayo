@@ -1,3 +1,5 @@
+import { canTutorAcceptMatching } from "./teacherVerification";
+
 export interface MatchingRequest {
   id: string;
   parentId: string;
@@ -40,6 +42,10 @@ interface CreateMatchingInput {
 }
 
 export function createMatchingRequest(input: CreateMatchingInput) {
+  const check = canTutorAcceptMatching(input.tutorId);
+  if (!check.ok) {
+    return { ok: false as const, message: check.message ?? "매칭 신청을 할 수 없습니다." };
+  }
   const list = loadStoredMatchingRequests();
   const nextRequest: MatchingRequest = {
     id: `m-${Date.now()}`,
@@ -52,7 +58,7 @@ export function createMatchingRequest(input: CreateMatchingInput) {
     requestedAt: new Date().toISOString(),
   };
   saveMatchingRequests([nextRequest, ...list]);
-  return nextRequest;
+  return { ok: true as const, request: nextRequest };
 }
 
 export function cancelMatchingRequest(requestId: string) {
