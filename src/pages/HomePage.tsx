@@ -95,21 +95,25 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
-              to="/login"
-              className="inline-flex items-center justify-center gap-2 bg-white text-blue-700 font-bold text-base px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all"
+              to="/signup"
+              className="inline-flex items-center justify-center gap-2 bg-amber-400 text-slate-900 font-black text-base px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all"
             >
-              시작하기
+              회원가입 · 무료 시작
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </Link>
-            <a
-              href="#premium"
+            <Link
+              to="/login"
               className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold text-base px-6 py-4 rounded-2xl border border-white/25 transition-all"
             >
-              프리미엄 구독 보기
-            </a>
+              이미 계정이 있어요
+            </Link>
           </div>
+          <p className="text-blue-100/80 text-sm mt-3">
+            학부모 · 원어민 강사 모두 가입 가능 ·{" "}
+            <a href="#premium" className="underline hover:text-white">프리미엄 혜택 보기</a>
+          </p>
 
           {/* Trust pills */}
           <div className="flex flex-wrap gap-2 mt-10">
@@ -251,12 +255,20 @@ export default function HomePage() {
             ))}
           </div>
 
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-xl transition-colors"
-          >
-            로그인 후 키트 포함 예약하기 →
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/signup"
+              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-xl transition-colors"
+            >
+              회원가입 후 키트 포함 예약하기 →
+            </Link>
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 text-slate-600 font-semibold px-4 py-3 rounded-xl hover:text-slate-900 transition-colors"
+            >
+              로그인
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -302,12 +314,20 @@ export default function HomePage() {
               <p className="text-white font-bold mb-1">구독 예시: 월 4회 정기권</p>
               <p className="text-slate-400 text-sm">활동 사진 + 일지 + 위치공유 + AI 리포트 포함 · 수수료 0원</p>
             </div>
-            <Link
-              to="/login"
-              className="flex-shrink-0 bg-amber-400 hover:bg-amber-300 text-slate-900 font-black px-6 py-3 rounded-xl transition-colors"
-            >
-              로그인 후 구독하기
-            </Link>
+            <div className="flex flex-shrink-0 gap-2">
+              <Link
+                to="/signup"
+                className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-black px-6 py-3 rounded-xl transition-colors"
+              >
+                회원가입
+              </Link>
+              <Link
+                to="/login"
+                className="bg-white/10 hover:bg-white/20 text-white font-bold px-5 py-3 rounded-xl border border-white/20 transition-colors"
+              >
+                로그인
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -368,12 +388,20 @@ export default function HomePage() {
             검증된 원어민 강사가 우리 집으로 찾아옵니다.
             첫 세션은 언제든 취소 가능해요.
           </p>
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-2 bg-white text-blue-700 font-black text-lg px-10 py-5 rounded-2xl shadow-xl hover:-translate-y-1 transition-all"
-          >
-            로그인 / 회원가입
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              to="/signup"
+              className="inline-flex items-center gap-2 bg-amber-400 text-slate-900 font-black text-lg px-10 py-5 rounded-2xl shadow-xl hover:-translate-y-1 transition-all"
+            >
+              회원가입하기
+            </Link>
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 bg-white/10 text-white font-bold text-base px-8 py-4 rounded-2xl border border-white/25 hover:bg-white/20 transition-all"
+            >
+              로그인
+            </Link>
+          </div>
         </div>
       </section>
 

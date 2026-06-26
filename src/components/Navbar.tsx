@@ -10,16 +10,16 @@ export default function Navbar() {
           </Link>
           <div className="flex items-center gap-2">
             <Link
-              to="/signup"
+              to="/login"
               className="text-slate-600 hover:text-slate-900 text-sm font-semibold px-3 py-2 rounded-xl transition-colors"
             >
-              회원가입
+              로그인
             </Link>
             <Link
-              to="/login"
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-4 py-2 rounded-xl transition-colors"
+              to="/signup"
+              className="bg-amber-400 hover:bg-amber-300 text-slate-900 text-sm font-black px-4 py-2 rounded-xl transition-colors shadow-sm"
             >
-              로그인
+              회원가입
             </Link>
           </div>
         </div>
