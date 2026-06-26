@@ -1,7 +1,8 @@
-import { tutors } from "../../data/tutors";
+import { getTutors } from "../../data/tutors";
 import { isBasicVerified, isPremiumVerified } from "../../utils/verification";
 
 export default function AdminTutorsPage() {
+  const tutors = getTutors();
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-black text-slate-900">강사 관리</h1>

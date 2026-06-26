@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { tutors } from "../data/tutors";
+import { useAuth } from "../context/AuthContext";
+import { getTutorById } from "../data/tutors";
 import { artKit, supportsArtKit } from "../data/kits";
 import { isBasicVerified, isPremiumVerified } from "../utils/verification";
+import { createMatchingRequest } from "../data/matching";
+import { createBookingRequest } from "../data/bookings";
 import KitWeekPreview from "../components/KitWeekPreview";
 
 const MONTH_NAMES = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
@@ -87,8 +90,9 @@ function StarRow({ rating, size = "text-base" }: { rating: number; size?: string
 }
 
 export default function TutorDetailPage() {
+  const { user } = useAuth();
   const { id } = useParams();
-  const tutor = tutors.find((t) => t.id === Number(id));
+  const tutor = getTutorById(Number(id));
 
   const today = new Date();
   const [calYear, setCalYear] = useState(today.getFullYear());
@@ -100,6 +104,10 @@ export default function TutorDetailPage() {
   const [selectedKitWeek, setSelectedKitWeek] = useState(1);
   const [showKitPreview, setShowKitPreview] = useState(false);
   const [bookingStep, setBookingStep] = useState<"select" | "confirm" | "done">("select");
+  const [childName, setChildName] = useState("");
+  const [matchingChildSummary, setMatchingChildSummary] = useState("");
+  const [matchingNote, setMatchingNote] = useState("");
+  const [matchingMessage, setMatchingMessage] = useState("");
 
   if (!tutor) {
     return (
@@ -143,6 +151,8 @@ export default function TutorDetailPage() {
     count: tutor.reviews.filter((r) => r.rating === star).length,
   }));
   const maxCount = Math.max(...ratingDist.map((r) => r.count), 1);
+
+  const bookingDate = selectedDay ? `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}` : "";
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -470,16 +480,85 @@ export default function TutorDetailPage() {
                   </div>
 
                   <button
-                    onClick={() => setBookingStep("done")}
+                    onClick={() => {
+                      if (!user || !selectedTime || !bookingDate) return;
+                      createBookingRequest({
+                        parentId: user.id,
+                        tutorId: tutor.id,
+                        tutorName: tutor.name,
+                        date: bookingDate,
+                        time: selectedTime,
+                        packageName: pkg.label,
+                        childName,
+                        kitIncluded: includeKit,
+                        kitWeek: includeKit ? selectedKitWeek : undefined,
+                        kitPrice: includeKit ? artKit.pricePerWeek : undefined,
+                      });
+                      setBookingStep("done");
+                    }}
                     className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-base shadow-lg hover:shadow-xl transition-all"
                   >
-                    예약 확정하기
+                    예약 요청 보내기
                   </button>
                   <p className="text-center text-xs text-slate-400 mt-2">첫 세션 24시간 전까지 무료 취소 가능</p>
                 </div>
               ) : (
                 /* ── 메인 예약 선택 화면 ── */
                 <>
+                  {/* 패키지 선택 */}
+                  <div className="p-5 border-b border-slate-100">
+                    <h2 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                      <span>🤝</span> 매칭 신청
+                    </h2>
+                    <div className="space-y-2">
+                      <input
+                        value={matchingChildSummary}
+                        onChange={(e) => setMatchingChildSummary(e.target.value)}
+                        className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm"
+                        placeholder="자녀 정보 (예: 6세 남아 · 영어 노출 초급)"
+                      />
+                      <textarea
+                        value={matchingNote}
+                        onChange={(e) => setMatchingNote(e.target.value)}
+                        rows={2}
+                        className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm"
+                        placeholder="요청 메모 (예: 활발한 수업 선호)"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!user) return;
+                          createMatchingRequest({
+                            parentId: user.id,
+                            tutorId: tutor.id,
+                            tutorName: tutor.name,
+                            childSummary: matchingChildSummary,
+                            requestNote: matchingNote,
+                          });
+                          setMatchingMessage("매칭 신청이 접수되었습니다.");
+                          setMatchingChildSummary("");
+                          setMatchingNote("");
+                        }}
+                        className="w-full py-2.5 rounded-xl border border-blue-200 text-blue-700 bg-blue-50 font-bold text-sm hover:bg-blue-100"
+                      >
+                        매칭 신청하기
+                      </button>
+                      {matchingMessage && <p className="text-xs text-emerald-600 font-medium">{matchingMessage}</p>}
+                    </div>
+                  </div>
+
+                  <div className="p-5 border-b border-slate-100">
+                    <h2 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                      <span>👶</span> 자녀 정보
+                    </h2>
+                    <input
+                      value={childName}
+                      onChange={(e) => setChildName(e.target.value)}
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm"
+                      placeholder="예: 지우 (7세)"
+                    />
+                  </div>
+
                   {/* 패키지 선택 */}
                   <div className="p-5 border-b border-slate-100">
                     <h2 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
@@ -717,17 +796,17 @@ export default function TutorDetailPage() {
                     )}
 
                     <button
-                      disabled={!selectedDay || !selectedTime}
+                      disabled={!selectedDay || !selectedTime || !childName.trim()}
                       onClick={() => setBookingStep("confirm")}
                       className={`w-full py-4 rounded-xl font-black text-base transition-all ${
-                        selectedDay && selectedTime
+                        selectedDay && selectedTime && childName.trim()
                           ? "bg-amber-400 hover:bg-amber-300 text-slate-900 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                           : "bg-slate-100 text-slate-400 cursor-not-allowed"
                       }`}
                     >
-                      {selectedDay && selectedTime
+                      {selectedDay && selectedTime && childName.trim()
                         ? `예약하기 · ₩${finalPrice.toLocaleString()}`
-                        : "날짜와 시간을 선택해주세요"}
+                        : "자녀/날짜/시간을 선택해주세요"}
                     </button>
 
                     <div className="flex items-center justify-center gap-4 mt-3 text-xs text-slate-400">

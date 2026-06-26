@@ -6,6 +6,7 @@ import ParentLayout from "./components/layouts/ParentLayout";
 import TutorLayout from "./components/layouts/TutorLayout";
 import AdminLayout from "./components/layouts/AdminLayout";
 import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 import HomePage from "./pages/HomePage";
 import TutorListPage from "./pages/TutorListPage";
 import TutorDetailPage from "./pages/TutorDetailPage";
@@ -15,6 +16,7 @@ import ParentSubscriptionPage from "./pages/parent/ParentSubscriptionPage";
 import TutorDashboardPage from "./pages/tutor/TutorDashboardPage";
 import TutorSchedulePage from "./pages/tutor/TutorSchedulePage";
 import TutorSessionsPage from "./pages/tutor/TutorSessionsPage";
+import TutorProfileSetupPage from "./pages/tutor/TutorProfileSetupPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminTutorsPage from "./pages/admin/AdminTutorsPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
@@ -38,6 +40,7 @@ export default function App() {
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route path="/" element={<RootRedirect />} />
 
           <Route path="/parent" element={<ProtectedRoute allowed={["parent"]}><ParentLayout /></ProtectedRoute>}>
@@ -50,6 +53,7 @@ export default function App() {
 
           <Route path="/tutor" element={<ProtectedRoute allowed={["tutor"]}><TutorLayout /></ProtectedRoute>}>
             <Route index element={<TutorDashboardPage />} />
+            <Route path="profile" element={<TutorProfileSetupPage />} />
             <Route path="schedule" element={<TutorSchedulePage />} />
             <Route path="sessions" element={<TutorSessionsPage />} />
           </Route>

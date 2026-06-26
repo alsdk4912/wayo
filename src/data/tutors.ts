@@ -47,9 +47,14 @@ export interface Tutor {
   tags: string[];
   experience: string;
   languages: string[];
+  verificationDocs?: {
+    idCardFile?: string;
+    visaFile?: string;
+    criminalRecordFile?: string;
+  };
 }
 
-export const tutors: Tutor[] = [
+const DEFAULT_TUTORS: Tutor[] = [
   {
     id: 1,
     name: "Emma Johnson",
@@ -403,3 +408,92 @@ export const tutors: Tutor[] = [
     languages: ["영어 (원어민)", "일본어 (초급)"],
   },
 ];
+
+const TUTOR_STORAGE_KEY = "wayo_tutors";
+
+function loadStoredTutors(): Tutor[] | null {
+  try {
+    const raw = localStorage.getItem(TUTOR_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return null;
+    return parsed as Tutor[];
+  } catch {
+    return null;
+  }
+}
+
+function saveTutors(list: Tutor[]) {
+  localStorage.setItem(TUTOR_STORAGE_KEY, JSON.stringify(list));
+}
+
+export function getTutors() {
+  const stored = loadStoredTutors();
+  if (stored && stored.length > 0) return stored;
+  saveTutors(DEFAULT_TUTORS);
+  return DEFAULT_TUTORS;
+}
+
+export function getTutorById(tutorId: number) {
+  return getTutors().find((t) => t.id === tutorId);
+}
+
+interface TutorProfileInput {
+  nameKo: string;
+  affiliation: string;
+  role: string;
+  location: string;
+  specialties: string[];
+  hourlyRate: number;
+  intro: string;
+  longIntro: string;
+  availableSlots: TimeSlot[];
+  verificationDocs?: {
+    idCardFile?: string;
+    visaFile?: string;
+    criminalRecordFile?: string;
+  };
+}
+
+export function upsertTutorProfile(
+  user: { id: string; name: string; tutorId?: number; avatar?: string },
+  profile: TutorProfileInput
+) {
+  const list = getTutors();
+  const existing = user.tutorId ? list.find((t) => t.id === user.tutorId) : null;
+  const nextId = existing ? existing.id : Math.max(...list.map((t) => t.id), 0) + 1;
+
+  const nextTutor: Tutor = {
+    id: nextId,
+    name: user.name,
+    nameKo: profile.nameKo.trim(),
+    affiliation: profile.affiliation.trim(),
+    role: profile.role.trim(),
+    specialties: profile.specialties,
+    hourlyRate: profile.hourlyRate,
+    rating: existing?.rating ?? 5,
+    reviewCount: existing?.reviewCount ?? 0,
+    location: profile.location.trim(),
+    photo: existing?.photo ?? user.avatar ?? `https://i.pravatar.cc/300?u=${encodeURIComponent(user.id)}`,
+    intro: profile.intro.trim(),
+    longIntro: profile.longIntro.trim(),
+    verified: existing?.verified ?? {
+      basic: { idCard: true, selfie: true, visa: true, affiliation: true },
+      premium: { criminalRecord: false, safetyTraining: false },
+    },
+    availableSlots: profile.availableSlots,
+    reviews: existing?.reviews ?? [],
+    tags: existing?.tags ?? profile.specialties.slice(0, 4),
+    experience: existing?.experience ?? "신규 등록 강사",
+    languages: existing?.languages ?? ["영어 (원어민)", "한국어 (초급)"],
+    verificationDocs: profile.verificationDocs ?? existing?.verificationDocs,
+  };
+
+  const merged = existing
+    ? list.map((t) => (t.id === existing.id ? nextTutor : t))
+    : [...list, nextTutor];
+  saveTutors(merged);
+  return nextTutor;
+}
+
+export const tutors = DEFAULT_TUTORS;

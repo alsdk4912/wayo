@@ -1,10 +1,18 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 import type { AuthUser } from "../types/auth";
-import { authenticate } from "../data/users";
+import { authenticate, registerAccount, type RegisterRole } from "../data/users";
 
 interface AuthContextValue {
   user: AuthUser | null;
   login: (email: string, password: string) => boolean;
+  signup: (payload: {
+    role: RegisterRole;
+    email: string;
+    password: string;
+    name: string;
+    children?: string;
+  }) => { ok: true } | { ok: false; message: string };
+  refreshUser: (nextUser: AuthUser) => void;
   logout: () => void;
 }
 
@@ -32,13 +40,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true;
   }, []);
 
+  const signup = useCallback((payload: {
+    role: RegisterRole;
+    email: string;
+    password: string;
+    name: string;
+    children?: string;
+  }) => {
+    const result = registerAccount(payload);
+    if (!result.ok) return result;
+    setUser(result.user);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(result.user));
+    return { ok: true } as const;
+  }, []);
+
+  const refreshUser = useCallback((nextUser: AuthUser) => {
+    setUser(nextUser);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
+  }, []);
+
   const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, signup, refreshUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

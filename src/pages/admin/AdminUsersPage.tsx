@@ -1,7 +1,7 @@
-import { DEMO_ACCOUNTS } from "../../data/users";
+import { listDemoAccounts } from "../../data/users";
 
 export default function AdminUsersPage() {
-  const parents = DEMO_ACCOUNTS.filter((a) => a.role === "parent");
+  const parents = listDemoAccounts().filter((a) => a.role === "parent");
 
   return (
     <div className="space-y-4">

@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { bookings } from "../../data/bookings";
+import { getBookings } from "../../data/bookings";
 
 export default function ParentHomePage() {
   const { user } = useAuth();
-  const myBookings = bookings.filter((b) => b.parentId === user?.id);
+  const myBookings = getBookings().filter((b) => b.parentId === user?.id);
   const upcoming = myBookings.filter((b) => b.status === "confirmed");
 
   return (

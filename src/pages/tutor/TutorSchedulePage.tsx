@@ -1,11 +1,21 @@
+import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { tutors } from "../../data/tutors";
+import { getTutorById } from "../../data/tutors";
 
 export default function TutorSchedulePage() {
   const { user } = useAuth();
-  const tutor = tutors.find((t) => t.id === user?.tutorId);
+  const tutor = getTutorById(user?.tutorId ?? 0);
 
-  if (!tutor) return null;
+  if (!tutor) {
+    return (
+      <div className="bg-white rounded-2xl border border-slate-100 p-5">
+        <p className="text-slate-500 text-sm mb-3">프로필 등록 후 일정 설정이 가능합니다.</p>
+        <Link to="/tutor/profile" className="text-blue-600 text-sm font-bold hover:underline">
+          원어민 프로필 등록하기
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

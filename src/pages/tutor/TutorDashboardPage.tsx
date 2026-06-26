@@ -1,21 +1,32 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { tutors } from "../../data/tutors";
-import { tutorSessions } from "../../data/bookings";
+import { getTutorById } from "../../data/tutors";
+import { getTutorSessions } from "../../data/bookings";
 import { artKit, kitOrders } from "../../data/kits";
 import { isBasicVerified, isPremiumVerified } from "../../utils/verification";
 import CurriculumGuideModal from "../../components/CurriculumGuideModal";
 
 export default function TutorDashboardPage() {
   const { user } = useAuth();
-  const tutor = tutors.find((t) => t.id === user?.tutorId);
-  const sessions = tutorSessions.filter((s) => s.tutorId === user?.tutorId);
+  const tutor = getTutorById(user?.tutorId ?? 0);
+  const sessions = getTutorSessions(user?.tutorId);
   const upcoming = sessions.filter((s) => s.status === "confirmed");
   const myOrders = kitOrders.filter((o) => o.tutorId === user?.tutorId);
   const [guideWeek, setGuideWeek] = useState<number | null>(null);
   const [orderedIds, setOrderedIds] = useState<Set<string>>(new Set());
 
-  if (!tutor) return <p className="text-slate-500">강사 정보를 찾을 수 없습니다.</p>;
+  if (!tutor) {
+    return (
+      <div className="bg-white rounded-2xl border border-slate-100 p-5 text-center">
+        <p className="font-bold text-slate-800 mb-2">원어민 프로필 등록이 필요합니다.</p>
+        <p className="text-sm text-slate-500 mb-4">프로필 등록 후 학부모에게 노출되고 매칭/예약을 받을 수 있습니다.</p>
+        <Link to="/tutor/profile" className="inline-flex bg-blue-600 text-white text-sm font-bold px-4 py-2.5 rounded-xl">
+          프로필 등록하기
+        </Link>
+      </div>
+    );
+  }
 
   const handleOrderKit = (sessionId: string, week: number) => {
     setOrderedIds((prev) => new Set(prev).add(sessionId));

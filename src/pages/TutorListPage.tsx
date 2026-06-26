@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { tutors } from "../data/tutors";
+import { getTutors } from "../data/tutors";
 import TutorCard from "../components/TutorCard";
 import { isPremiumVerified } from "../utils/verification";
 
@@ -15,6 +15,8 @@ export default function TutorListPage() {
   const [selectedSpecialty, setSelectedSpecialty] = useState("전체");
   const [sortBy, setSortBy] = useState("rating");
   const [premiumOnly, setPremiumOnly] = useState(false);
+
+  const tutors = getTutors();
 
   const filtered = tutors
     .filter((t) => {

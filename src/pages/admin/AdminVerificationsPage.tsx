@@ -1,8 +1,9 @@
-import { tutors } from "../../data/tutors";
+import { getTutors } from "../../data/tutors";
 import { isBasicVerified, isPremiumVerified } from "../../utils/verification";
 import { BASIC_VERIFY_ITEMS, PREMIUM_VERIFY_ITEMS } from "../../utils/verification";
 
 export default function AdminVerificationsPage() {
+  const tutors = getTutors();
   const pending = tutors.filter((t) => isBasicVerified(t) && !isPremiumVerified(t));
 
   return (

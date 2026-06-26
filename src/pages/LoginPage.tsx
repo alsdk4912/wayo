@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth, getRoleHome } from "../context/AuthContext";
-import { DEMO_ACCOUNTS } from "../data/users";
+import { listDemoAccounts } from "../data/users";
 
 export default function LoginPage() {
   const { login, user } = useAuth();
@@ -9,6 +9,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const accounts = listDemoAccounts();
+  const quickAccounts = accounts.filter((a) => a.password === "wayo1234");
 
   if (user) {
     navigate(getRoleHome(user.role), { replace: true });
@@ -18,7 +20,7 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (login(email, password)) {
-      const account = DEMO_ACCOUNTS.find((a) => a.email === email);
+      const account = accounts.find((a) => a.email === email);
       if (account) navigate(getRoleHome(account.role), { replace: true });
     } else {
       setError("이메일 또는 비밀번호가 올바르지 않습니다.");
@@ -29,7 +31,7 @@ export default function LoginPage() {
     setEmail(demoEmail);
     setPassword("wayo1234");
     if (login(demoEmail, "wayo1234")) {
-      const account = DEMO_ACCOUNTS.find((a) => a.email === demoEmail);
+      const account = accounts.find((a) => a.email === demoEmail);
       if (account) navigate(getRoleHome(account.role), { replace: true });
     }
   };
@@ -80,7 +82,7 @@ export default function LoginPage() {
           <div className="mt-6 pt-5 border-t border-slate-100">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">데모 계정 (원클릭 로그인)</p>
             <div className="space-y-2">
-              {DEMO_ACCOUNTS.map((a) => (
+              {quickAccounts.map((a) => (
                 <button
                   key={a.id}
                   onClick={() => quickLogin(a.email)}
@@ -102,6 +104,12 @@ export default function LoginPage() {
               ))}
             </div>
             <p className="text-xs text-slate-400 text-center mt-3">공통 비밀번호: wayo1234</p>
+            <p className="text-xs text-slate-500 text-center mt-2">
+              회원이 아니신가요?{" "}
+              <Link to="/signup" className="text-blue-600 font-semibold hover:underline">
+                회원가입
+              </Link>
+            </p>
           </div>
         </div>
       </div>

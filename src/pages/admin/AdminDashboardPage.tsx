@@ -1,10 +1,13 @@
-import { tutors } from "../../data/tutors";
-import { bookings } from "../../data/bookings";
+import { getTutors } from "../../data/tutors";
+import { getBookings } from "../../data/bookings";
 import { artKit, kitOrders } from "../../data/kits";
-import { DEMO_ACCOUNTS } from "../../data/users";
+import { listDemoAccounts } from "../../data/users";
 import { isPremiumVerified } from "../../utils/verification";
 
 export default function AdminDashboardPage() {
+  const tutors = getTutors();
+  const bookings = getBookings();
+  const accounts = listDemoAccounts();
   const premiumCount = tutors.filter(isPremiumVerified).length;
   const pendingPremium = tutors.filter((t) => !isPremiumVerified(t)).length;
   const kitMargin = kitOrders.reduce((s, o) => s + o.margin, 0);
@@ -63,7 +66,7 @@ export default function AdminDashboardPage() {
 
       <div className="bg-white rounded-2xl border border-slate-100 p-5">
         <h2 className="font-bold text-slate-900 mb-2">데모 계정</h2>
-        <p className="text-sm text-slate-500">총 {DEMO_ACCOUNTS.length}개 (학부모·강사·관리자)</p>
+        <p className="text-sm text-slate-500">총 {accounts.length}개 (학부모·강사·관리자)</p>
       </div>
     </div>
   );

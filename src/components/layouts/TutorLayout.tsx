@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const tabs = [
   { to: "/tutor", label: "홈", icon: "📊" },
+  { to: "/tutor/profile", label: "프로필", icon: "🪪" },
   { to: "/tutor/schedule", label: "일정", icon: "📅" },
   { to: "/tutor/sessions", label: "세션", icon: "✅" },
 ];
