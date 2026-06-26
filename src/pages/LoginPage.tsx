@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, getRoleHome } from "../context/AuthContext";
 import { listDemoAccounts } from "../data/users";
+import AuthNav from "../components/AuthNav";
 
 export default function LoginPage() {
   const { login, user } = useAuth();
@@ -37,7 +38,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-blue-600 to-sky-500 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-blue-600 to-sky-500">
+      <AuthNav active="login" />
+      <div className="flex items-center justify-center p-4 pt-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-black text-white mb-2">
@@ -47,7 +50,15 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-white rounded-3xl p-6 shadow-2xl">
-          <h2 className="font-black text-slate-900 text-lg mb-5">로그인</h2>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-black text-slate-900 text-lg">로그인</h2>
+            <Link
+              to="/signup"
+              className="text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-900 px-4 py-2 rounded-xl transition-colors"
+            >
+              회원가입
+            </Link>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -112,6 +123,7 @@ export default function LoginPage() {
             </p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

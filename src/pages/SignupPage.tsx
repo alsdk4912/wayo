@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, getRoleHome } from "../context/AuthContext";
+import AuthNav from "../components/AuthNav";
 
 type SignupRole = "parent" | "tutor";
 
@@ -29,7 +30,9 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-blue-600 to-sky-500 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-blue-600 to-sky-500">
+      <AuthNav active="signup" />
+      <div className="flex items-center justify-center p-4 pt-8">
       <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl">
         <h1 className="font-black text-slate-900 text-xl mb-1">회원가입</h1>
         <p className="text-sm text-slate-500 mb-5">학부모 또는 원어민 강사로 가입할 수 있습니다.</p>
@@ -95,6 +98,7 @@ export default function SignupPage() {
             로그인
           </Link>
         </p>
+      </div>
       </div>
     </div>
   );
