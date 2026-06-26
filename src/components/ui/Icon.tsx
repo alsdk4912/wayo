@@ -26,7 +26,11 @@ type IconName =
   | "clipboard"
   | "heart-pulse"
   | "message"
-  | "bell";
+  | "bell"
+  | "menu"
+  | "close"
+  | "panel-left"
+  | "log-out";
 
 const paths: Record<IconName, string> = {
   home: "M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z",
@@ -57,6 +61,10 @@ const paths: Record<IconName, string> = {
   "heart-pulse": "M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8zM12 13v-2m0 4h.01",
   message: "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z",
   bell: "M18 8A6 6 0 106 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0",
+  menu: "M4 6h16M4 12h16M4 18h16",
+  close: "M18 6L6 18M6 6l12 12",
+  "panel-left": "M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h4M9 3v18M9 3h10a2 2 0 012 2v14a2 2 0 01-2 2H9",
+  "log-out": "M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9",
 };
 
 interface Props {
