@@ -6,6 +6,7 @@ import { getTutorSessions } from "../../data/bookings";
 import { artKit, kitOrders } from "../../data/kits";
 import { isBasicVerified, isPremiumVerified } from "../../utils/verification";
 import CurriculumGuideModal from "../../components/CurriculumGuideModal";
+import StatusBadge from "../../components/ui/StatusBadge";
 
 export default function TutorDashboardPage() {
   const { user } = useAuth();
@@ -18,10 +19,10 @@ export default function TutorDashboardPage() {
 
   if (!tutor) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 text-center">
-        <p className="font-bold text-slate-800 mb-2">원어민 프로필 등록이 필요합니다.</p>
-        <p className="text-sm text-slate-500 mb-4">프로필 등록 후 학부모에게 노출되고 매칭/예약을 받을 수 있습니다.</p>
-        <Link to="/tutor/profile" className="inline-flex bg-blue-600 text-white text-sm font-bold px-4 py-2.5 rounded-xl">
+      <div className="card p-5 text-center">
+        <p className="font-semibold text-foreground mb-2">원어민 프로필 등록이 필요합니다.</p>
+        <p className="text-sm text-muted mb-4">프로필 등록 후 학부모에게 노출되고 매칭/예약을 받을 수 있습니다.</p>
+        <Link to="/tutor/profile" className="inline-flex btn-primary text-sm px-4 py-2.5">
           프로필 등록하기
         </Link>
       </div>
@@ -41,9 +42,9 @@ export default function TutorDashboardPage() {
           <h1 className="font-black text-slate-900">{tutor.name}</h1>
           <p className="text-sm text-slate-500">{tutor.affiliation}</p>
           {isPremiumVerified(tutor) ? (
-            <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full mt-1 inline-block">⭐ 프리미엄 인증</span>
+            <StatusBadge variant="premium" label="프리미엄 인증" />
           ) : isBasicVerified(tutor) ? (
-            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full mt-1 inline-block">✓ 기본 인증</span>
+            <span className="mt-1 inline-block"><StatusBadge variant="basic" label="기본 인증" /></span>
           ) : null}
         </div>
       </div>

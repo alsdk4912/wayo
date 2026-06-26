@@ -7,6 +7,9 @@ import { isBasicVerified, isPremiumVerified } from "../utils/verification";
 import { createMatchingRequest } from "../data/matching";
 import { createBookingRequest } from "../data/bookings";
 import KitWeekPreview from "../components/KitWeekPreview";
+import Icon from "../components/ui/Icon";
+import SectionHeading from "../components/ui/SectionHeading";
+import StatusBadge from "../components/ui/StatusBadge";
 
 const MONTH_NAMES = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
@@ -68,15 +71,15 @@ function QuoteIcon({ className }: { className?: string }) {
 }
 
 const basicVerifyConfig = [
-  { key: "idCard" as const, label: "신분증 인증", desc: "유효 신분증으로 본인 확인", emoji: "🪪" },
-  { key: "selfie" as const, label: "셀카 얼굴인증", desc: "실시간 얼굴 매칭 인증", emoji: "🤳" },
-  { key: "visa" as const, label: "비자 확인", desc: "합법적 활동 가능 비자 소지", emoji: "🛂" },
-  { key: "affiliation" as const, label: "소속 확인", desc: "와요 공인 강사 소속 검증", emoji: "🏢" },
+  { key: "idCard" as const, label: "신분증 인증", desc: "유효 신분증으로 본인 확인", icon: "id-card" as const },
+  { key: "selfie" as const, label: "셀카 얼굴인증", desc: "실시간 얼굴 매칭 인증", icon: "camera" as const },
+  { key: "visa" as const, label: "비자 확인", desc: "합법적 활동 가능 비자 소지", icon: "passport" as const },
+  { key: "affiliation" as const, label: "소속 확인", desc: "와요 공인 강사 소속 검증", icon: "building" as const },
 ];
 
 const premiumVerifyConfig = [
-  { key: "criminalRecord" as const, label: "본국 범죄경력증명", desc: "출신국 범죄경력 증명서 제출", emoji: "📋" },
-  { key: "safetyTraining" as const, label: "아동안전교육 수료", desc: "아동 안전·응급처치 교육 이수", emoji: "🩺" },
+  { key: "criminalRecord" as const, label: "본국 범죄경력증명", desc: "출신국 범죄경력 증명서 제출", icon: "clipboard" as const },
+  { key: "safetyTraining" as const, label: "아동안전교육 수료", desc: "아동 안전·응급처치 교육 이수", icon: "heart-pulse" as const },
 ];
 
 function StarRow({ rating, size = "text-base" }: { rating: number; size?: string }) {
@@ -113,7 +116,7 @@ export default function TutorDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-5xl mb-4">😕</div>
+          <Icon name="search" size={40} className="text-muted mx-auto mb-4 opacity-40" />
           <p className="text-slate-600 font-medium mb-4">튜터를 찾을 수 없어요</p>
           <Link to="/parent/tutors" className="text-blue-600 font-semibold hover:underline">
             강사 목록으로 돌아가기
@@ -201,7 +204,7 @@ export default function TutorDetailPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 mb-4 text-sm text-slate-500">
-                  <span>📍 {tutor.location}</span>
+                  <span className="flex items-center gap-1"><Icon name="map-pin" size={14} /> {tutor.location}</span>
                   <span className="text-slate-200">|</span>
                   <span className="font-bold text-blue-600 text-base">₩{tutor.hourlyRate.toLocaleString()}/시간</span>
                 </div>
@@ -221,25 +224,27 @@ export default function TutorDetailPage() {
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
                 <div>
-                  <p className="font-black text-slate-900">🛡️ 안심 인증 배지</p>
+                  <p className="font-semibold text-foreground flex items-center gap-2">
+                    <Icon name="shield" size={16} className="text-primary" /> 안심 인증 배지
+                  </p>
                   <p className="text-slate-400 text-xs mt-0.5">기본 인증 필수 · 프리미엄 인증 선택</p>
                 </div>
                 {isPremiumVerified(tutor) ? (
-                  <span className="text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full">⭐ 프리미엄 인증</span>
+                  <StatusBadge variant="premium" label="프리미엄 인증" />
                 ) : isBasicVerified(tutor) ? (
-                  <span className="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full">✓ 기본 인증</span>
+                  <StatusBadge variant="basic" label="기본 인증" />
                 ) : null}
               </div>
               <div className="p-6 space-y-5">
                 <div>
                   <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-3">기본 인증 (가입 필수)</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {basicVerifyConfig.map(({ key, label, desc, emoji }) => {
+                    {basicVerifyConfig.map(({ key, label, desc, icon }) => {
                       const ok = tutor.verified.basic[key];
                       return (
-                        <div key={key} className={`rounded-xl p-3 border ${ok ? "bg-blue-50 border-blue-100" : "bg-slate-50 border-slate-100 opacity-50"}`}>
+                        <div key={key} className={`rounded-xl p-3 border ${ok ? "bg-primary-50 border-primary/20" : "bg-surface-muted border-border opacity-60"}`}>
                           <div className="flex items-center gap-2 mb-1">
-                            <span>{emoji}</span>
+                            <Icon name={icon} size={16} className="text-primary" />
                             <span className="text-sm font-bold text-slate-800">{label}</span>
                             {ok && <span className="text-xs text-blue-600 font-bold ml-auto">✓</span>}
                           </div>
@@ -252,12 +257,12 @@ export default function TutorDetailPage() {
                 <div>
                   <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-3">프리미엄 인증 (선택 · 더 높은 신뢰)</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {premiumVerifyConfig.map(({ key, label, desc, emoji }) => {
+                    {premiumVerifyConfig.map(({ key, label, desc, icon }) => {
                       const ok = tutor.verified.premium[key];
                       return (
-                        <div key={key} className={`rounded-xl p-3 border ${ok ? "bg-amber-50 border-amber-100" : "bg-slate-50 border-slate-100"}`}>
+                        <div key={key} className={`rounded-xl p-3 border ${ok ? "bg-accent-50 border-accent/20" : "bg-surface-muted border-border"}`}>
                           <div className="flex items-center gap-2 mb-1">
-                            <span>{emoji}</span>
+                            <Icon name={icon} size={16} className="text-accent" />
                             <span className="text-sm font-bold text-slate-800">{label}</span>
                             {ok ? (
                               <span className="text-xs text-amber-600 font-bold ml-auto">✓ 완료</span>
@@ -276,9 +281,7 @@ export default function TutorDetailPage() {
 
             {/* ③ 소개글 */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-              <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <span>👋</span> 튜터 소개
-              </h2>
+              <SectionHeading icon="profile" className="text-lg mb-4">튜터 소개</SectionHeading>
               <p className="text-slate-600 leading-relaxed">{tutor.longIntro}</p>
               <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm border-t border-slate-50 pt-5">
                 <div>
@@ -300,10 +303,10 @@ export default function TutorDetailPage() {
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
               {/* 헤더 */}
               <div className="px-6 pt-6 pb-5 border-b border-slate-50">
-                <h2 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
-                  <span>💬</span> 학부모 후기
-                  <span className="bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full ml-1">{tutor.reviewCount}</span>
-                </h2>
+                <SectionHeading icon="message" className="text-lg mb-4">
+                  학부모 후기
+                  <span className="bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-md ml-1">{tutor.reviewCount}</span>
+                </SectionHeading>
 
                 {/* 별점 요약 */}
                 <div className="flex items-center gap-6 flex-wrap">
@@ -507,9 +510,7 @@ export default function TutorDetailPage() {
                 <>
                   {/* 패키지 선택 */}
                   <div className="p-5 border-b border-slate-100">
-                    <h2 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                      <span>🤝</span> 매칭 신청
-                    </h2>
+                    <SectionHeading icon="handshake" className="mb-3">매칭 신청</SectionHeading>
                     <div className="space-y-2">
                       <input
                         value={matchingChildSummary}
@@ -548,9 +549,7 @@ export default function TutorDetailPage() {
                   </div>
 
                   <div className="p-5 border-b border-slate-100">
-                    <h2 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                      <span>👶</span> 자녀 정보
-                    </h2>
+                    <SectionHeading icon="baby" className="mb-3">자녀 정보</SectionHeading>
                     <input
                       value={childName}
                       onChange={(e) => setChildName(e.target.value)}
@@ -561,9 +560,7 @@ export default function TutorDetailPage() {
 
                   {/* 패키지 선택 */}
                   <div className="p-5 border-b border-slate-100">
-                    <h2 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                      <span>📦</span> 세션 패키지 선택
-                    </h2>
+                    <SectionHeading icon="package" className="mb-3">세션 패키지 선택</SectionHeading>
                     <div className="space-y-2">
                       {PACKAGES.map((p) => {
                         const pBase = tutor.hourlyRate * p.sessions;
@@ -635,9 +632,7 @@ export default function TutorDetailPage() {
                   {hasArtKit && (
                     <div className="p-5 border-b border-slate-100">
                       <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                          <span>🎨</span> 와요 공식 미술 키트
-                        </h2>
+                        <SectionHeading icon="palette">와요 공식 미술 키트</SectionHeading>
                         <button
                           type="button"
                           onClick={() => setIncludeKit(!includeKit)}
@@ -692,9 +687,7 @@ export default function TutorDetailPage() {
 
                   {/* 캘린더 */}
                   <div className="p-5 border-b border-slate-100">
-                    <h2 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                      <span>📅</span> 날짜 선택
-                    </h2>
+                    <SectionHeading icon="calendar" className="mb-3">날짜 선택</SectionHeading>
                     <div className="flex items-center justify-between mb-3">
                       <button onClick={() => {
                         if (calMonth === 0) { setCalMonth(11); setCalYear(calYear - 1); }
@@ -743,10 +736,10 @@ export default function TutorDetailPage() {
 
                   {/* 시간 선택 */}
                   <div className="p-5 border-b border-slate-100">
-                    <h2 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                      <span>⏰</span> 시간 선택
-                      {selectedDay && <span className="text-slate-400 font-normal text-xs">({calMonth + 1}월 {selectedDay}일)</span>}
-                    </h2>
+                    <SectionHeading icon="clock" className="mb-3">
+                      시간 선택
+                      {selectedDay && <span className="text-muted font-normal text-xs ml-1">({calMonth + 1}월 {selectedDay}일)</span>}
+                    </SectionHeading>
                     {!selectedDay ? (
                       <p className="text-slate-400 text-xs py-2">날짜를 먼저 선택해주세요</p>
                     ) : availableTimesForDay.length === 0 ? (
@@ -826,7 +819,9 @@ export default function TutorDetailPage() {
 
             {/* 안심 보장 카드 */}
             <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-5 text-white">
-              <p className="font-black text-sm mb-3">🛡️ 와요 안심 보장</p>
+              <p className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <Icon name="shield" size={16} /> 와요 안심 보장
+              </p>
               <ul className="space-y-2 text-xs text-blue-100">
                 <li className="flex items-start gap-2">
                   <CheckCircleIcon className="w-4 h-4 text-blue-300 flex-shrink-0 mt-0.5" />

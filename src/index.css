@@ -1,15 +1,55 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #4f46e5;
-  --color-primary-dark: #4338ca;
-  --color-accent: #f59e0b;
-  --font-family-sans: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --color-primary: #5c4ae4;
+  --color-primary-dark: #4a3bc7;
+  --color-primary-50: #f0edff;
+  --color-accent: #ff7a00;
+  --color-accent-50: #fff4eb;
+  --color-foreground: #191f28;
+  --color-muted: #8b95a1;
+  --color-border: #e8ebed;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f2f4f6;
+  --color-background: #f7f8fa;
+  --font-family-sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --radius-card: 12px;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 body {
   font-family: var(--font-family-sans);
-  background-color: #fafafa;
-  color: #0f172a;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.btn-accent {
+  background: var(--color-accent);
+  color: white;
+  font-weight: 600;
+  border-radius: 10px;
 }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { getTutors } from "../data/tutors";
 import TutorCard from "../components/TutorCard";
 import { isPremiumVerified } from "../utils/verification";
+import Icon from "../components/ui/Icon";
 
 const specialtyOptions = ["전체", "미술", "놀이", "스포츠", "음악", "쿠킹", "코딩", "동화책"];
 const sortOptions = [
@@ -35,20 +36,15 @@ export default function TutorListPage() {
     });
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Page Header */}
-      <div className="bg-slate-900 text-white">
-        <div className="max-w-5xl mx-auto px-5 py-10">
-          <h1 className="text-3xl font-black mb-2">검증된 원어민 강사</h1>
-          <p className="text-slate-400 text-sm">
-            기본 인증 4종 완료 강사 · 프리미엄 인증은 더 높은 안심 수준
-          </p>
-        </div>
+    <div className="min-h-screen bg-background -mx-4 -mt-5">
+      <div className="bg-white border-b border-border px-4 py-6">
+        <h1 className="text-xl font-bold text-foreground mb-1">검증된 원어민 강사</h1>
+        <p className="text-muted text-sm">기본 인증 완료 · 프리미엄 인증은 더 높은 안심</p>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <div className="px-4 py-5">
         {/* Filters */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-8">
+        <div className="card p-4 mb-6">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             {/* Specialty Filter */}
             <div className="flex flex-col gap-2 w-full sm:w-auto">
@@ -58,10 +54,10 @@ export default function TutorListPage() {
                   <button
                     key={spec}
                     onClick={() => setSelectedSpecialty(spec)}
-                    className={`px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
                       selectedSpecialty === spec
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600"
+                        ? "bg-primary text-white border-primary"
+                        : "bg-white text-muted border-border hover:border-primary/30"
                     }`}
                   >
                     {spec}
@@ -115,9 +111,9 @@ export default function TutorListPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <div className="text-5xl mb-4">🔍</div>
-            <p className="text-slate-500 font-medium">해당 조건의 튜터가 없어요</p>
+          <div className="text-center py-16">
+            <Icon name="search" size={36} className="text-muted mx-auto mb-3 opacity-30" />
+            <p className="text-muted font-medium text-sm">해당 조건의 강사가 없어요</p>
             <button
               onClick={() => { setSelectedSpecialty("전체"); setPremiumOnly(false); }}
               className="mt-4 text-blue-600 font-semibold text-sm hover:underline"
@@ -128,16 +124,13 @@ export default function TutorListPage() {
         )}
 
         {/* Safety Banner */}
-        <div className="mt-12 bg-blue-50 border border-blue-100 rounded-2xl p-6">
-          <div className="flex items-start gap-4">
-            <span className="text-2xl">🛡️</span>
-            <div>
-              <h3 className="font-bold text-slate-800 mb-1">2단계 안심 인증</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                모든 강사는 <strong>신분증·얼굴·비자·소속</strong> 기본 인증을 거칩니다.
-                프리미엄 인증 강사는 <strong>본국 범죄경력증명·아동안전교육</strong>까지 완료했어요.
-              </p>
-            </div>
+        <div className="mt-8 card p-5 flex items-start gap-3">
+          <Icon name="shield" size={20} className="text-primary shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-semibold text-foreground text-sm mb-1">2단계 안심 인증</h3>
+            <p className="text-muted text-xs leading-relaxed">
+              모든 강사는 신분증·얼굴·비자·소속 기본 인증을 거칩니다. 프리미엄 인증 강사는 범죄경력증명·아동안전교육까지 완료했어요.
+            </p>
           </div>
         </div>
       </div>

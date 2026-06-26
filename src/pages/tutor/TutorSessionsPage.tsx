@@ -1,5 +1,20 @@
 import { useAuth } from "../../context/AuthContext";
 import { getTutorSessions, updateBookingStatus } from "../../data/bookings";
+import StatusBadge from "../../components/ui/StatusBadge";
+
+const statusMap = {
+  pending: "pending",
+  confirmed: "confirmed",
+  completed: "completed",
+  cancelled: "cancelled",
+} as const;
+
+const statusLabel = {
+  pending: "요청",
+  confirmed: "예정",
+  completed: "완료",
+  cancelled: "취소됨",
+} as const;
 
 export default function TutorSessionsPage() {
   const { user } = useAuth();
@@ -7,39 +22,33 @@ export default function TutorSessionsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-black text-slate-900">세션 관리</h1>
+      <h1 className="text-lg font-bold text-foreground">세션 관리</h1>
+
+      {sessions.length === 0 && (
+        <div className="card p-10 text-center">
+          <p className="text-sm text-muted">예정된 세션이 없습니다.</p>
+        </div>
+      )}
 
       {sessions.map((s) => (
-        <div key={s.id} className="bg-white rounded-2xl p-5 border border-slate-100">
+        <div key={s.id} className="card p-5">
           <div className="flex justify-between items-start mb-2">
-            <p className="font-bold text-slate-900">{s.childName}</p>
-            <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-              s.status === "cancelled" ? "bg-slate-100 text-slate-500" :
-              s.status === "pending" ? "bg-amber-50 text-amber-600" :
-              s.status === "confirmed" ? "bg-blue-50 text-blue-600" : "bg-emerald-50 text-emerald-600"
-            }`}>
-              {s.status === "pending" ? "요청" : s.status === "confirmed" ? "예정" : s.status === "cancelled" ? "취소됨" : "완료"}
-            </span>
+            <p className="font-semibold text-foreground">{s.childName}</p>
+            <StatusBadge variant={statusMap[s.status]} label={statusLabel[s.status]} />
           </div>
-          <p className="text-sm text-slate-500">{s.date} {s.time}</p>
+          <p className="text-sm text-muted">{s.date} {s.time}</p>
           {s.status === "pending" && (
-            <button
-              onClick={() => updateBookingStatus(s.id, "confirmed")}
-              className="mt-3 w-full py-2.5 bg-amber-500 text-slate-900 text-sm font-bold rounded-xl"
-            >
+            <button onClick={() => updateBookingStatus(s.id, "confirmed")} className="mt-3 w-full py-2.5 btn-accent text-sm">
               예약 요청 수락
             </button>
           )}
           {s.status === "confirmed" && (
-            <button
-              onClick={() => updateBookingStatus(s.id, "completed")}
-              className="mt-3 w-full py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl"
-            >
+            <button onClick={() => updateBookingStatus(s.id, "completed")} className="mt-3 w-full py-2.5 btn-primary text-sm">
               세션 완료 처리
             </button>
           )}
           {s.status === "completed" && (
-            <p className="mt-2 text-xs text-emerald-600 font-medium">✓ 활동일지·사진 전송 완료</p>
+            <p className="mt-2 text-xs text-emerald-600 font-medium">활동일지·사진 전송 완료</p>
           )}
         </div>
       ))}
