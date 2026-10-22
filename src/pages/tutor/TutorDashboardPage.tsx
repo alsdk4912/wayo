@@ -77,14 +77,14 @@ export default function TutorDashboardPage() {
       )}
 
       {/* 다음 세션 키트 주문 */}
-      <section className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-100 overflow-hidden">
-        <div className="px-4 py-3 border-b border-amber-100 flex items-center justify-between">
-          <h2 className="font-bold text-amber-900 text-sm">🎨 다음 세션 키트 주문</h2>
-          <span className="text-[10px] font-bold bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">와요 공식</span>
+      <section className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-[20px] border border-primary/15 overflow-hidden">
+        <div className="px-4 py-3 border-b border-primary/10 flex items-center justify-between">
+          <h2 className="font-bold text-foreground text-sm">다음 세션 키트 주문</h2>
+          <span className="text-[10px] font-bold bg-spark text-foreground px-2 py-0.5 rounded-full">와요 공식</span>
         </div>
         <div className="p-4 space-y-3">
           {upcoming.length === 0 ? (
-            <p className="text-sm text-amber-700/70 text-center py-4">예정된 세션이 없습니다.</p>
+            <p className="text-sm text-muted text-center py-4">예정된 세션이 없습니다.</p>
           ) : (
             upcoming.map((s) => {
               const week = s.kitWeek ?? 1;
@@ -92,14 +92,14 @@ export default function TutorDashboardPage() {
               const justOrdered = orderedIds.has(s.id);
               const isOrdered = !!existing || justOrdered;
               return (
-                <div key={s.id} className="bg-white rounded-xl p-4 border border-amber-100">
+                <div key={s.id} className="bg-white rounded-2xl p-4 border border-primary/10">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <p className="font-bold text-slate-800 text-sm">{s.childName}</p>
                       <p className="text-xs text-slate-500">{s.date} {s.time}</p>
                     </div>
                     {s.kitIncluded && (
-                      <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">키트 포함 예약</span>
+                      <span className="text-[10px] font-bold bg-primary-50 text-primary px-2 py-0.5 rounded-full">키트 포함 예약</span>
                     )}
                   </div>
                   <p className="text-xs text-slate-600 mb-3">
@@ -109,7 +109,7 @@ export default function TutorDashboardPage() {
                     {!isOrdered ? (
                       <button
                         onClick={() => handleOrderKit(s.id, week)}
-                        className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-xl transition-colors"
+                        className="flex-1 py-2.5 btn-primary text-sm font-bold"
                       >
                         키트 주문 · ₩{artKit.pricePerWeek.toLocaleString()}
                       </button>

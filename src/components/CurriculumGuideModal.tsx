@@ -15,7 +15,7 @@ export default function CurriculumGuideModal({ kit, week, onClose }: Props) {
         className="bg-white rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-4 rounded-t-2xl">
+        <div className="sticky top-0 bg-gradient-to-r from-primary to-accent px-5 py-4 rounded-t-2xl">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/80 text-xs font-medium">커리큘럼 가이드</p>

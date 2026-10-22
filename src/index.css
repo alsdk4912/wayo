@@ -1,20 +1,21 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #5c4ae4;
-  --color-primary-dark: #4a3bc7;
-  --color-primary-50: #f0edff;
-  --color-accent: #ff7a00;
-  --color-accent-50: #fff4eb;
-  --color-foreground: #191f28;
+  --color-primary: #4880f0;
+  --color-primary-dark: #3a6ad4;
+  --color-primary-50: #eef4fe;
+  --color-accent: #7a62f0;
+  --color-accent-50: #f3efff;
+  --color-spark: #f8c848;
+  --color-foreground: #1c2430;
   --color-muted: #8b95a1;
-  --color-border: #e8ebed;
+  --color-border: #e6eef8;
   --color-surface: #ffffff;
-  --color-surface-muted: #f2f4f6;
-  --color-background: #f7f8fa;
+  --color-surface-muted: #f4f7fc;
+  --color-background: #f7f9fd;
   --font-family-sans: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-  --radius-card: 12px;
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --radius-card: 20px;
+  --shadow-card: 0 8px 24px rgba(72, 128, 240, 0.06);
 }
 
 body {
@@ -36,20 +37,15 @@ body {
   box-shadow: var(--shadow-card);
 }
 
-.btn-primary {
-  background: var(--color-primary);
-  color: white;
-  font-weight: 600;
-  border-radius: 10px;
-  transition: background 0.15s;
-}
-.btn-primary:hover {
-  background: var(--color-primary-dark);
-}
-
+.btn-primary,
 .btn-accent {
-  background: var(--color-accent);
+  background: linear-gradient(90deg, #4880f0 0%, #7a62f0 100%);
   color: white;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: 999px;
+  transition: filter 0.15s;
+}
+.btn-primary:hover,
+.btn-accent:hover {
+  filter: brightness(0.96);
 }

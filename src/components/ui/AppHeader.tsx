@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import BrandLogo from "../BrandLogo";
 
 interface Props {
   title?: React.ReactNode;
@@ -17,8 +18,8 @@ export default function AppHeader({ title, subtitle, right, homeTo = "/" }: Prop
             <p className="font-semibold text-foreground text-sm leading-tight">{title}</p>
           </div>
         ) : (
-          <Link to={homeTo} className="font-bold text-foreground text-[17px] tracking-tight">
-            와요<span className="text-primary">Wayo</span>
+          <Link to={homeTo} className="flex items-center" aria-label="와요 홈">
+            <BrandLogo className="h-8" />
           </Link>
         )}
         {right}
