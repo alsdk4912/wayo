@@ -15,55 +15,51 @@ export default function TeacherVerificationParentCard({ teacherId }: Props) {
   const summary = getParentVerificationSummary(teacherId);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-      <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between gap-3">
+    <div className="card overflow-hidden">
+      <div className="px-4 py-3.5 border-b border-border flex items-center justify-between gap-3">
         <div>
-          <p className="font-semibold text-foreground flex items-center gap-2">
-            <Icon name="shield" size={16} className="text-primary" />
-            플랫폼 확인 절차
+          <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Icon name="shield" size={15} className="text-primary" />
+            확인 절차
           </p>
-          <p className="text-slate-400 text-xs mt-0.5">서류 확인 절차 현황 (민감정보 비공개)</p>
+          <p className="text-[11px] text-muted mt-0.5">서류 확인 현황 · 민감정보는 보이지 않습니다</p>
         </div>
         <TeacherVerificationBadge status={summary.status} />
       </div>
 
-      <div className="p-6 space-y-4">
+      <div className="p-4 space-y-3">
         {summary.summaryText && (
-          <p className="text-sm text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
-            {summary.summaryText}
-          </p>
+          <p className="text-sm text-foreground bg-primary-50 rounded-2xl px-3.5 py-3">{summary.summaryText}</p>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-1.5">
           {[
-            { label: "신원 확인", ok: summary.identityVerified },
-            { label: "체류자격 확인", ok: summary.visaVerified },
-            { label: "아동 활동 적합성 확인", ok: summary.childSafetyVerified },
+            { label: "신원", ok: summary.identityVerified },
+            { label: "체류자격", ok: summary.visaVerified },
+            { label: "아동 활동", ok: summary.childSafetyVerified },
           ].map((item) => (
             <div
               key={item.label}
-              className={`rounded-xl p-3 border text-sm ${item.ok ? "bg-primary-50 border-primary/20 text-primary" : "bg-surface-muted border-border text-muted"}`}
+              className={`rounded-2xl px-2 py-2.5 text-center ${item.ok ? "bg-primary-50 text-primary" : "bg-surface-muted text-muted"}`}
             >
-              <span className="font-semibold">{item.label}</span>
-              <p className="text-xs mt-1">{item.ok ? "확인 절차 완료" : "확인 전"}</p>
+              <p className="text-[11px] font-semibold leading-tight">{item.label}</p>
+              <p className="text-[10px] mt-1">{item.ok ? "완료" : "확인 전"}</p>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <p className="text-xs font-bold text-slate-400 mb-1">최근 확인일</p>
-            <p className="text-slate-700">{formatDate(summary.lastReviewedAt)}</p>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-2xl bg-surface-muted px-3 py-2.5">
+            <p className="text-[11px] text-muted">최근 확인</p>
+            <p className="text-sm font-semibold text-foreground mt-0.5">{formatDate(summary.lastReviewedAt)}</p>
           </div>
-          <div>
-            <p className="text-xs font-bold text-slate-400 mb-1">다음 재확인 예정일</p>
-            <p className="text-slate-700">{formatDate(summary.nextReviewDate)}</p>
+          <div className="rounded-2xl bg-surface-muted px-3 py-2.5">
+            <p className="text-[11px] text-muted">다음 재확인</p>
+            <p className="text-sm font-semibold text-foreground mt-0.5">{formatDate(summary.nextReviewDate)}</p>
           </div>
         </div>
 
-        <p className="text-xs text-slate-500 leading-relaxed border-t border-slate-50 pt-4">
-          {summary.disclaimer}
-        </p>
+        <p className="text-[11px] text-muted leading-relaxed">{summary.disclaimer}</p>
       </div>
     </div>
   );

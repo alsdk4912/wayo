@@ -3,15 +3,12 @@ import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getTutorById, slotsForTutorDate } from "../data/tutors";
 import { artKit, supportsArtKit } from "../data/kits";
-import { isBasicVerified, isPremiumVerified } from "../utils/verification";
 import { createMatchingRequest } from "../data/matching";
 import { createBookingRequest } from "../data/bookings";
 import { canTutorAcceptMatching } from "../data/teacherVerification";
 import KitWeekPreview from "../components/KitWeekPreview";
 import TeacherVerificationParentCard from "../components/TeacherVerificationParentCard";
 import Icon from "../components/ui/Icon";
-import SectionHeading from "../components/ui/SectionHeading";
-import StatusBadge from "../components/ui/StatusBadge";
 
 const MONTH_NAMES = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
@@ -24,70 +21,16 @@ function getCalendarDays(year: number, month: number) {
   return days;
 }
 
-// 세션 패키지
 const PACKAGES = [
-  {
-    id: "trial",
-    label: "1회 체험권",
-    desc: "부담 없이 첫 만남",
-    sessions: 1,
-    discount: 0,
-    badge: null,
-  },
-  {
-    id: "monthly4",
-    label: "월 4회 정기권",
-    desc: "주 1회 꾸준히",
-    sessions: 4,
-    discount: 5,
-    badge: "인기",
-  },
-  {
-    id: "monthly8",
-    label: "월 8회 정기권",
-    desc: "주 2회 집중 케어",
-    sessions: 8,
-    discount: 10,
-    badge: "최고 효과",
-  },
+  { id: "trial", label: "1회", stored: "1회 체험권", desc: "첫 만남", sessions: 1, discount: 0, badge: null },
+  { id: "monthly4", label: "월 4회", stored: "월 4회 정기권", desc: "주 1회", sessions: 4, discount: 5, badge: "기본" },
+  { id: "monthly8", label: "월 8회", stored: "월 8회 정기권", desc: "주 2회", sessions: 8, discount: 10, badge: "집중" },
 ];
 
-// SVG 아이콘
-function CheckCircleIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-    </svg>
-  );
-}
-function QuoteIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-    </svg>
-  );
-}
+const PASS_BENEFITS = ["활동 사진", "활동일지", "위치 공유", "놀이영어 리포트"];
 
-const basicVerifyConfig = [
-  { key: "idCard" as const, label: "신분증 인증", desc: "유효 신분증으로 본인 확인", icon: "id-card" as const },
-  { key: "selfie" as const, label: "셀카 얼굴인증", desc: "실시간 얼굴 매칭 인증", icon: "camera" as const },
-  { key: "visa" as const, label: "비자 확인", desc: "합법적 활동 가능 비자 소지", icon: "passport" as const },
-  { key: "affiliation" as const, label: "소속 확인", desc: "와요 공인 강사 소속 검증", icon: "building" as const },
-];
-
-const premiumVerifyConfig = [
-  { key: "criminalRecord" as const, label: "본국 범죄경력증명", desc: "출신국 범죄경력 증명서 제출", icon: "clipboard" as const },
-  { key: "safetyTraining" as const, label: "아동안전교육 수료", desc: "아동 안전·응급처치 교육 이수", icon: "heart-pulse" as const },
-];
-
-function StarRow({ rating, size = "text-base" }: { rating: number; size?: string }) {
-  return (
-    <span className="flex">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <span key={i} className={`${size} ${i <= rating ? "text-amber-400" : "text-slate-200"}`}>★</span>
-      ))}
-    </span>
-  );
+function won(n: number) {
+  return `₩${n.toLocaleString()}`;
 }
 
 export default function TutorDetailPage() {
@@ -115,14 +58,11 @@ export default function TutorDetailPage() {
 
   if (!tutor) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Icon name="search" size={40} className="text-muted mx-auto mb-4 opacity-40" />
-          <p className="text-slate-600 font-medium mb-4">튜터를 찾을 수 없어요</p>
-          <Link to="/parent/tutors" className="text-blue-600 font-semibold hover:underline">
-            강사 목록으로 돌아가기
-          </Link>
-        </div>
+      <div className="card p-8 text-center">
+        <p className="text-sm font-semibold text-foreground mb-3">선생님을 찾을 수 없습니다</p>
+        <Link to="/parent/tutors" className="text-sm font-semibold text-primary">
+          강사 목록
+        </Link>
       </div>
     );
   }
@@ -142,723 +82,467 @@ export default function TutorDetailPage() {
   const kitTotal = includeKit ? artKit.pricePerWeek * pkg.sessions : 0;
   const finalPrice = sessionPrice + kitTotal;
   const hasArtKit = supportsArtKit(tutor.specialties);
-  const kgPrice = 1500000; // 영어유치원 월 비용 기준
+  const canBook = Boolean(selectedDay && selectedTime && childName.trim());
 
-  // 별점 분포 계산
   const ratingDist = [5, 4, 3, 2, 1].map((star) => ({
     star,
     count: tutor.reviews.filter((r) => r.rating === star).length,
   }));
   const maxCount = Math.max(...ratingDist.map((r) => r.count), 1);
+  const bookingDate = selectedDay ? isoForDay(selectedDay) : "";
 
-  const bookingDate = selectedDay ? `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}` : "";
+  const shiftMonth = (dir: -1 | 1) => {
+    const next = new Date(calYear, calMonth + dir, 1);
+    setCalYear(next.getFullYear());
+    setCalMonth(next.getMonth());
+    setSelectedDay(null);
+    setSelectedTime(null);
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Breadcrumb */}
-      <div className="bg-white border-b border-slate-100">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3">
-          <nav className="flex items-center gap-2 text-sm text-slate-400">
-            <Link to="/parent" className="hover:text-blue-600">홈</Link>
-            <span>/</span>
-            <Link to="/parent/tutors" className="hover:text-blue-600">강사 찾기</Link>
-            <span>/</span>
-            <span className="text-slate-700 font-medium">{tutor.name}</span>
-          </nav>
+    <div className="space-y-4">
+      <Link to="/parent/tutors" className="inline-flex items-center gap-1 text-xs font-semibold text-muted">
+        <Icon name="chevron-left" size={14} />
+        강사
+      </Link>
+
+      <section className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-primary to-accent text-white p-5">
+        <div className="absolute -right-8 -top-10 w-32 h-32 rounded-full bg-white/10" />
+        <div className="absolute right-6 bottom-5 w-2.5 h-2.5 rounded-full bg-spark" />
+        <div className="relative flex gap-4">
+          <img
+            src={tutor.photo}
+            alt={tutor.name}
+            className="w-[72px] h-[72px] rounded-2xl object-cover ring-2 ring-white/30 shrink-0"
+          />
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold tracking-wide text-white/75">ENGLISH MATE</p>
+            <h1 className="text-[22px] font-bold leading-tight mt-0.5 truncate">{tutor.name}</h1>
+            <p className="text-sm text-white/85">{tutor.nameKo}</p>
+            <p className="text-xs text-white/70 mt-1 line-clamp-2">{tutor.role}</p>
+          </div>
         </div>
-      </div>
+        <div className="relative mt-4 flex items-center justify-between gap-3 text-sm">
+          <span className="inline-flex items-center gap-1 text-white/90 min-w-0">
+            <Icon name="map-pin" size={14} />
+            <span className="truncate">{tutor.location}</span>
+          </span>
+          <span className="inline-flex items-center gap-1 bg-white/15 px-2.5 py-1 rounded-full text-xs font-semibold shrink-0">
+            <Icon name="star" size={12} className="text-spark" />
+            {tutor.rating}
+            <span className="text-white/70 font-medium">· {tutor.reviewCount}</span>
+          </span>
+        </div>
+      </section>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* ═══════════ LEFT ═══════════ */}
-          <div className="lg:col-span-2 space-y-6">
+      <section className="card p-4">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[11px] text-muted">1회 수업</p>
+            <p className="text-2xl font-bold tracking-tight text-foreground">
+              {won(tutor.hourlyRate)}
+              <span className="text-xs font-medium text-muted"> /시간</span>
+            </p>
+          </div>
+          <p className="text-[11px] text-muted text-right">{tutor.affiliation}</p>
+        </div>
+        <div className="flex flex-wrap gap-1.5 mt-3">
+          {tutor.specialties.map((s) => (
+            <span key={s} className="text-xs font-semibold text-primary bg-primary-50 px-2.5 py-1 rounded-full">{s}</span>
+          ))}
+          {tutor.languages.map((l) => (
+            <span key={l} className="text-xs font-medium text-muted bg-surface-muted px-2.5 py-1 rounded-full">{l}</span>
+          ))}
+        </div>
+      </section>
 
-            {/* ① 프로필 헤더 */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              <div className="h-28 bg-gradient-to-r from-blue-600 to-blue-400" />
-              <div className="px-6 pb-6">
-                <div className="flex items-end gap-4 -mt-14 mb-4">
-                  <img
-                    src={tutor.photo}
-                    alt={tutor.name}
-                    className="w-24 h-24 rounded-2xl border-4 border-white shadow-lg object-cover"
-                  />
-                  <div className="mb-1 flex-1">
-                    <div className="flex items-start justify-between flex-wrap gap-2">
-                      <div>
-                        <h1 className="text-2xl font-black text-slate-800">{tutor.name}</h1>
-                        <p className="text-blue-600 font-semibold text-sm">{tutor.nameKo}</p>
-                        <p className="text-slate-400 text-sm">{tutor.affiliation} · {tutor.role}</p>
-                      </div>
-                      <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl">
-                        <span className="text-amber-400 text-lg">★</span>
-                        <span className="font-black text-slate-800">{tutor.rating}</span>
-                        <span className="text-slate-400 text-xs">({tutor.reviewCount}개)</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+      <TeacherVerificationParentCard teacherId={tutor.id} />
 
-                <div className="flex flex-wrap items-center gap-2 mb-4 text-sm text-slate-500">
-                  <span className="flex items-center gap-1"><Icon name="map-pin" size={14} /> {tutor.location}</span>
-                  <span className="text-slate-200">|</span>
-                  <span className="font-bold text-blue-600 text-base">₩{tutor.hourlyRate.toLocaleString()}/시간</span>
-                </div>
+      <section className="card p-4">
+        <h2 className="text-sm font-semibold text-foreground">소개</h2>
+        <p className="text-sm text-muted leading-relaxed mt-2">{tutor.longIntro}</p>
+        <div className="mt-4 pt-4 border-t border-border">
+          <p className="text-[11px] text-muted">경력</p>
+          <p className="text-sm text-foreground mt-1">{tutor.experience}</p>
+        </div>
+      </section>
 
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {tutor.specialties.map((s) => (
-                    <span key={s} className="bg-amber-50 text-amber-700 border border-amber-200 text-sm font-semibold px-3 py-1 rounded-full">{s}</span>
-                  ))}
-                  {tutor.tags.slice(0, 3).map((t) => (
-                    <span key={t} className="bg-blue-50 text-blue-600 border border-blue-100 text-xs font-medium px-2.5 py-1 rounded-full">#{t}</span>
-                  ))}
-                </div>
-              </div>
+      <section>
+        <div className="flex items-baseline justify-between mb-2.5 px-0.5">
+          <h2 className="text-sm font-semibold text-foreground">후기</h2>
+          <p className="text-[11px] text-muted">{tutor.reviewCount}개</p>
+        </div>
+        <div className="card p-4 mb-2.5">
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-3xl font-bold text-foreground leading-none">{tutor.rating}</p>
+              <p className="text-[11px] text-muted mt-1">평균</p>
             </div>
-
-            {/* 플랫폼 확인 절차 (보호자용) */}
-            <TeacherVerificationParentCard teacherId={tutor.id} />
-
-            {/* ② 2단계 안심 인증 */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-foreground flex items-center gap-2">
-                    <Icon name="shield" size={16} className="text-primary" /> 안심 인증 배지
-                  </p>
-                  <p className="text-slate-400 text-xs mt-0.5">기본 인증 필수 · 프리미엄 인증 선택</p>
-                </div>
-                {isPremiumVerified(tutor) ? (
-                  <StatusBadge variant="premium" label="프리미엄 인증" />
-                ) : isBasicVerified(tutor) ? (
-                  <StatusBadge variant="basic" label="기본 인증" />
-                ) : null}
-              </div>
-              <div className="p-6 space-y-5">
-                <div>
-                  <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-3">기본 인증 (가입 필수)</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {basicVerifyConfig.map(({ key, label, desc, icon }) => {
-                      const ok = tutor.verified.basic[key];
-                      return (
-                        <div key={key} className={`rounded-xl p-3 border ${ok ? "bg-primary-50 border-primary/20" : "bg-surface-muted border-border opacity-60"}`}>
-                          <div className="flex items-center gap-2 mb-1">
-                            <Icon name={icon} size={16} className="text-primary" />
-                            <span className="text-sm font-bold text-slate-800">{label}</span>
-                            {ok && <span className="text-xs text-blue-600 font-bold ml-auto">✓</span>}
-                          </div>
-                          <p className="text-xs text-slate-500">{desc}</p>
-                        </div>
-                      );
-                    })}
+            <div className="flex-1 space-y-1">
+              {ratingDist.map(({ star, count }) => (
+                <div key={star} className="flex items-center gap-2">
+                  <span className="text-[10px] text-muted w-3 text-right">{star}</span>
+                  <div className="flex-1 h-1.5 rounded-full bg-surface-muted overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${(count / maxCount) * 100}%` }} />
                   </div>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-3">프리미엄 인증 (선택 · 더 높은 신뢰)</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {premiumVerifyConfig.map(({ key, label, desc, icon }) => {
-                      const ok = tutor.verified.premium[key];
-                      return (
-                        <div key={key} className={`rounded-xl p-3 border ${ok ? "bg-accent-50 border-accent/20" : "bg-surface-muted border-border"}`}>
-                          <div className="flex items-center gap-2 mb-1">
-                            <Icon name={icon} size={16} className="text-accent" />
-                            <span className="text-sm font-bold text-slate-800">{label}</span>
-                            {ok ? (
-                              <span className="text-xs text-amber-600 font-bold ml-auto">✓ 완료</span>
-                            ) : (
-                              <span className="text-xs text-slate-400 font-medium ml-auto">준비 중</span>
-                            )}
-                          </div>
-                          <p className="text-xs text-slate-500">{desc}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* ③ 소개글 */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-              <SectionHeading icon="profile" className="text-lg mb-4">튜터 소개</SectionHeading>
-              <p className="text-slate-600 leading-relaxed">{tutor.longIntro}</p>
-              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm border-t border-slate-50 pt-5">
-                <div>
-                  <p className="font-bold text-slate-400 text-xs uppercase tracking-wide mb-1.5">경력</p>
-                  <p className="text-slate-700">{tutor.experience}</p>
-                </div>
-                <div>
-                  <p className="font-bold text-slate-400 text-xs uppercase tracking-wide mb-1.5">사용 언어</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {tutor.languages.map((l) => (
-                      <span key={l} className="bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-full border border-blue-100">{l}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* ④ 학부모 후기 — 핵심 섹션 (id anchor for scroll) */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              {/* 헤더 */}
-              <div className="px-6 pt-6 pb-5 border-b border-slate-50">
-                <SectionHeading icon="message" className="text-lg mb-4">
-                  학부모 후기
-                  <span className="bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-md ml-1">{tutor.reviewCount}</span>
-                </SectionHeading>
-
-                {/* 별점 요약 */}
-                <div className="flex items-center gap-6 flex-wrap">
-                  {/* 평균 점수 */}
-                  <div className="text-center">
-                    <div className="text-5xl font-black text-slate-800 leading-none">{tutor.rating}</div>
-                    <StarRow rating={Math.round(tutor.rating)} size="text-lg" />
-                    <p className="text-xs text-slate-400 mt-1">{tutor.reviewCount}개 후기</p>
-                  </div>
-                  {/* 분포 바 */}
-                  <div className="flex-1 space-y-1.5 min-w-40">
-                    {ratingDist.map(({ star, count }) => (
-                      <div key={star} className="flex items-center gap-2 text-xs">
-                        <span className="text-amber-400 w-3 text-right font-bold">{star}</span>
-                        <span className="text-amber-400 text-xs">★</span>
-                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-amber-400 rounded-full transition-all"
-                            style={{ width: `${(count / maxCount) * 100}%` }}
-                          />
-                        </div>
-                        <span className="text-slate-400 w-3 text-right">{count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* 후기 목록 */}
-              <div className="divide-y divide-slate-50">
-                {tutor.reviews.map((review, idx) => (
-                  <div key={review.id} className={`p-6 ${idx === 0 ? "bg-blue-50/30" : ""}`}>
-                    {/* 추천 후기 레이블 */}
-                    {idx === 0 && (
-                      <div className="inline-flex items-center gap-1 bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-full mb-3">
-                        ✨ 추천 후기
-                      </div>
-                    )}
-
-                    <div className="flex items-start gap-3">
-                      <img
-                        src={review.avatar}
-                        alt={review.parentName}
-                        className="w-11 h-11 rounded-full object-cover flex-shrink-0 border-2 border-white shadow"
-                      />
-                      <div className="flex-1">
-                        {/* 작성자 정보 */}
-                        <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-slate-800 text-sm">{review.parentName}</span>
-                            <span className="bg-slate-100 text-slate-500 text-xs font-medium px-2 py-0.5 rounded-full">
-                              {review.childrenDesc}
-                            </span>
-                          </div>
-                          <span className="text-slate-400 text-xs">{review.date}</span>
-                        </div>
-
-                        {/* 별점 */}
-                        <div className="flex items-center gap-2 mb-3">
-                          <StarRow rating={review.rating} size="text-base" />
-                          <span className="font-bold text-slate-600 text-sm">{review.rating}.0</span>
-                        </div>
-
-                        {/* 하이라이트 인용문 */}
-                        <div className="flex items-start gap-2 bg-white border border-blue-100 rounded-xl p-3 mb-3">
-                          <QuoteIcon className="w-4 h-4 text-blue-300 flex-shrink-0 mt-0.5" />
-                          <p className="text-blue-700 font-semibold text-sm leading-relaxed">
-                            {review.highlight}
-                          </p>
-                        </div>
-
-                        {/* 본문 */}
-                        <p className="text-slate-600 text-sm leading-relaxed mb-3">{review.content}</p>
-
-                        {/* 키워드 태그 */}
-                        <div className="flex flex-wrap gap-1.5">
-                          {review.keywords.map((kw) => (
-                            <span key={kw} className="bg-amber-50 text-amber-700 border border-amber-100 text-xs font-medium px-2.5 py-1 rounded-full">
-                              #{kw}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* 후기 하단 안내 */}
-              <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center gap-2 text-sm text-slate-500">
-                <CheckCircleIcon className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                모든 후기는 실제 세션을 완료한 학부모님이 작성했습니다.
-              </div>
+              ))}
             </div>
           </div>
-
-          {/* ═══════════ RIGHT — 예약/결제 ═══════════ */}
-          <div className="space-y-4">
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden sticky top-24">
-
-              {bookingStep === "done" ? (
-                /* ── 예약 완료 화면 ── */
-                <div className="p-6 text-center">
-                  <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircleIcon className="w-9 h-9 text-emerald-500" />
+        </div>
+        {tutor.reviews.length === 0 ? (
+          <p className="card p-4 text-sm text-muted">아직 후기가 없습니다.</p>
+        ) : (
+          <div className="space-y-2.5">
+            {tutor.reviews.map((review) => (
+              <article key={review.id} className="card p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <img src={review.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{review.parentName}</p>
+                      <p className="text-[11px] text-muted">{review.childrenDesc}</p>
+                    </div>
                   </div>
-                  <h3 className="font-black text-slate-800 text-lg mb-1">예약 요청 완료!</h3>
-                  <p className="text-slate-500 text-sm mb-4">
-                    {calYear}년 {MONTH_NAMES[calMonth]} {selectedDay}일<br />
-                    {selectedTime} · {pkg.label}
-                    {includeKit && <><br />🎨 와요 공식 미술 키트 {selectedKitWeek}주차 포함</>}
+                  <p className="text-[11px] text-muted shrink-0">{review.date}</p>
+                </div>
+                <p className="text-sm font-semibold text-foreground mt-3 leading-snug">“{review.highlight}”</p>
+                <p className="text-sm text-muted leading-relaxed mt-1.5">{review.content}</p>
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  {review.keywords.map((kw) => (
+                    <span key={kw} className="text-[11px] text-muted bg-surface-muted px-2 py-0.5 rounded-full">{kw}</span>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="card overflow-hidden">
+        {bookingStep === "done" ? (
+          <div className="p-5 text-center">
+            <div className="w-12 h-12 rounded-full bg-primary-50 text-primary flex items-center justify-center mx-auto">
+              <Icon name="check-circle" size={22} />
+            </div>
+            <h3 className="text-lg font-bold text-foreground mt-3">예약 요청을 보냈습니다</h3>
+            <p className="text-sm text-muted mt-1">
+              {calYear}년 {MONTH_NAMES[calMonth]} {selectedDay}일 · {selectedTime}
+              <br />
+              {pkg.label}
+              {includeKit && <> · 미술 키트 {selectedKitWeek}주차</>}
+            </p>
+            <p className="text-xs text-muted leading-relaxed mt-4 bg-surface-muted rounded-2xl px-4 py-3">
+              선생님에게 요청이 전달됩니다. 첫 수업 전날까지 직접 정산하며, 24시간 전까지 취소할 수 있습니다.
+            </p>
+            <button
+              type="button"
+              onClick={() => { setBookingStep("select"); setSelectedDay(null); setSelectedTime(null); }}
+              className="text-sm font-semibold text-primary mt-4"
+            >
+              다른 날 예약
+            </button>
+          </div>
+        ) : bookingStep === "confirm" ? (
+          <div className="p-4">
+            <button type="button" onClick={() => setBookingStep("select")} className="text-xs font-semibold text-muted mb-3">
+              뒤로
+            </button>
+            <h3 className="text-sm font-semibold text-foreground mb-3">예약 확인</h3>
+            <dl className="space-y-2 text-sm">
+              {[
+                ["선생님", `${tutor.name} · ${tutor.nameKo}`],
+                ["일정", `${calMonth + 1}월 ${selectedDay}일 ${selectedTime}`],
+                ["패키지", `${pkg.label} · ${pkg.sessions}회`],
+              ].map(([label, value]) => (
+                <div key={label} className="flex justify-between gap-3">
+                  <dt className="text-muted">{label}</dt>
+                  <dd className="font-semibold text-foreground text-right">{value}</dd>
+                </div>
+              ))}
+              {pkg.discount > 0 && (
+                <div className="flex justify-between text-primary">
+                  <dt>할인 {pkg.discount}%</dt>
+                  <dd className="font-semibold">-{won(discountAmt)}</dd>
+                </div>
+              )}
+              {includeKit && (
+                <div className="flex justify-between">
+                  <dt className="text-muted">미술 키트 × {pkg.sessions}</dt>
+                  <dd className="font-semibold">{won(kitTotal)}</dd>
+                </div>
+              )}
+            </dl>
+            <div className="flex items-end justify-between mt-4 pt-4 border-t border-border">
+              <p className="text-xs text-muted">결제 예정</p>
+              <p className="text-2xl font-bold text-foreground">{won(finalPrice)}</p>
+            </div>
+            <p className="text-[11px] text-muted leading-relaxed mt-3">
+              파일럿 기간에는 첫 수업 전날까지 선생님과 직접 정산합니다.
+            </p>
+            <button
+              type="button"
+              disabled={!matchingAllowed}
+              onClick={() => {
+                if (!user || !selectedTime || !bookingDate) return;
+                setBookingError("");
+                const result = createBookingRequest({
+                  parentId: user.id,
+                  tutorId: tutor.id,
+                  tutorName: tutor.name,
+                  date: bookingDate,
+                  time: selectedTime,
+                  packageName: pkg.stored,
+                  childName,
+                  kitIncluded: includeKit,
+                  kitWeek: includeKit ? selectedKitWeek : undefined,
+                  kitPrice: includeKit ? artKit.pricePerWeek : undefined,
+                });
+                if (!result.ok) {
+                  setBookingError(result.message);
+                  return;
+                }
+                setBookingStep("done");
+              }}
+              className="w-full btn-primary py-3.5 text-sm mt-4 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              예약 요청 보내기
+            </button>
+            {bookingError && <p className="text-xs text-red-600 text-center mt-2">{bookingError}</p>}
+          </div>
+        ) : (
+          <>
+            <div className="p-4 border-b border-border">
+              <h2 className="text-sm font-semibold text-foreground mb-3">매칭 신청</h2>
+              <div className="space-y-2">
+                <input
+                  value={matchingChildSummary}
+                  onChange={(e) => setMatchingChildSummary(e.target.value)}
+                  className="w-full border border-border rounded-2xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-primary"
+                  placeholder="자녀 정보 · 6세, 영어 노출 초급"
+                />
+                <textarea
+                  value={matchingNote}
+                  onChange={(e) => setMatchingNote(e.target.value)}
+                  rows={2}
+                  className="w-full border border-border rounded-2xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-primary"
+                  placeholder="요청 메모"
+                />
+                <button
+                  type="button"
+                  disabled={!matchingAllowed}
+                  onClick={() => {
+                    if (!user) return;
+                    const result = createMatchingRequest({
+                      parentId: user.id,
+                      tutorId: tutor.id,
+                      tutorName: tutor.name,
+                      childSummary: matchingChildSummary,
+                      requestNote: matchingNote,
+                    });
+                    if (!result.ok) {
+                      setMatchingMessage(result.message);
+                      return;
+                    }
+                    setMatchingMessage("매칭 신청이 접수되었습니다.");
+                    setMatchingChildSummary("");
+                    setMatchingNote("");
+                  }}
+                  className="w-full py-2.5 rounded-full border border-primary/30 text-primary bg-primary-50 text-sm font-semibold disabled:opacity-40"
+                >
+                  매칭 신청
+                </button>
+                {matchingMessage && (
+                  <p className={`text-xs font-medium ${matchingMessage.includes("접수") ? "text-primary" : "text-red-600"}`}>
+                    {matchingMessage}
                   </p>
-                  <div className="bg-blue-50 rounded-xl p-4 text-left mb-4">
-                    <p className="text-blue-800 text-xs font-bold mb-1">📱 다음 단계</p>
-                    <p className="text-blue-600 text-xs leading-relaxed">
-                      튜터에게 예약 알림이 전송됩니다.<br />
-                      24시간 내 카카오톡으로 확정 연락이 옵니다.<br />
-                      직거래로 진행되며 수수료는 없어요.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => { setBookingStep("select"); setSelectedDay(null); setSelectedTime(null); }}
-                    className="text-blue-600 text-sm font-semibold hover:underline"
-                  >
-                    다른 날 예약하기
-                  </button>
-                </div>
-              ) : bookingStep === "confirm" ? (
-                /* ── 결제 확인 화면 ── */
-                <div className="p-5">
-                  <button onClick={() => setBookingStep("select")} className="flex items-center gap-1 text-slate-400 text-sm mb-4 hover:text-blue-600">
-                    ← 뒤로가기
-                  </button>
-                  <h3 className="font-black text-slate-800 mb-4">예약 확인</h3>
+                )}
+                {!matchingAllowed && (
+                  <p className="text-xs text-foreground bg-surface-muted rounded-2xl px-3 py-2">
+                    {canTutorAcceptMatching(tutor.id).message}
+                  </p>
+                )}
+              </div>
+            </div>
 
-                  <div className="space-y-3 text-sm mb-5">
-                    <div className="flex justify-between items-center py-2 border-b border-slate-50">
-                      <span className="text-slate-500">튜터</span>
-                      <span className="font-semibold text-slate-800">{tutor.name} ({tutor.nameKo})</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-slate-50">
-                      <span className="text-slate-500">날짜 · 시간</span>
-                      <span className="font-semibold text-slate-800">{calMonth + 1}월 {selectedDay}일 {selectedTime}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-slate-50">
-                      <span className="text-slate-500">패키지</span>
-                      <span className="font-semibold text-slate-800">{pkg.label} ({pkg.sessions}회)</span>
-                    </div>
-                    {pkg.discount > 0 && (
-                      <div className="flex justify-between items-center py-2 border-b border-slate-50">
-                        <span className="text-slate-500">할인 ({pkg.discount}%)</span>
-                        <span className="font-semibold text-emerald-600">-₩{discountAmt.toLocaleString()}</span>
-                      </div>
-                    )}
-                    {includeKit && (
-                      <div className="flex justify-between items-center py-2 border-b border-slate-50">
-                        <span className="text-slate-500">미술 키트 × {pkg.sessions}회</span>
-                        <span className="font-semibold text-amber-700">₩{kitTotal.toLocaleString()}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between items-center py-2 border-b border-slate-50">
-                      <span className="text-slate-500">수업료 소계</span>
-                      <span className="font-semibold text-slate-800">₩{sessionPrice.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="font-bold text-slate-800">결제 예정 금액</span>
-                      <span className="font-black text-blue-600 text-lg">₩{finalPrice.toLocaleString()}</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-4 text-xs text-amber-800">
-                    <p className="font-bold mb-0.5">💛 직거래 안내</p>
-                    결제는 첫 세션 전날까지 튜터에게 직접 계좌이체로 진행돼요. 와요 수수료 ₩0.
-                  </div>
-
-                  <button
-                    disabled={!matchingAllowed}
-                    onClick={() => {
-                      if (!user || !selectedTime || !bookingDate) return;
-                      setBookingError("");
-                      const result = createBookingRequest({
-                        parentId: user.id,
-                        tutorId: tutor.id,
-                        tutorName: tutor.name,
-                        date: bookingDate,
-                        time: selectedTime,
-                        packageName: pkg.label,
-                        childName,
-                        kitIncluded: includeKit,
-                        kitWeek: includeKit ? selectedKitWeek : undefined,
-                        kitPrice: includeKit ? artKit.pricePerWeek : undefined,
-                      });
-                      if (!result.ok) {
-                        setBookingError(result.message);
-                        return;
-                      }
-                      setBookingStep("done");
-                    }}
-                    className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-base shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    예약 요청 보내기
-                  </button>
-                  {bookingError && <p className="text-xs text-red-600 text-center mt-2">{bookingError}</p>}
-                  <p className="text-center text-xs text-slate-400 mt-2">첫 세션 24시간 전까지 무료 취소 가능</p>
-                </div>
-              ) : (
-                /* ── 메인 예약 선택 화면 ── */
-                <>
-                  {/* 패키지 선택 */}
-                  <div className="p-5 border-b border-slate-100">
-                    <SectionHeading icon="handshake" className="mb-3">매칭 신청</SectionHeading>
-                    <div className="space-y-2">
-                      <input
-                        value={matchingChildSummary}
-                        onChange={(e) => setMatchingChildSummary(e.target.value)}
-                        className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm"
-                        placeholder="자녀 정보 (예: 6세 남아 · 영어 노출 초급)"
-                      />
-                      <textarea
-                        value={matchingNote}
-                        onChange={(e) => setMatchingNote(e.target.value)}
-                        rows={2}
-                        className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm"
-                        placeholder="요청 메모 (예: 활발한 수업 선호)"
-                      />
-                      <button
-                        type="button"
-                        disabled={!matchingAllowed}
-                        onClick={() => {
-                          if (!user) return;
-                          const result = createMatchingRequest({
-                            parentId: user.id,
-                            tutorId: tutor.id,
-                            tutorName: tutor.name,
-                            childSummary: matchingChildSummary,
-                            requestNote: matchingNote,
-                          });
-                          if (!result.ok) {
-                            setMatchingMessage(result.message);
-                            return;
-                          }
-                          setMatchingMessage("매칭 신청이 접수되었습니다.");
-                          setMatchingChildSummary("");
-                          setMatchingNote("");
-                        }}
-                        className="w-full py-2.5 rounded-xl border border-blue-200 text-blue-700 bg-blue-50 font-bold text-sm hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        매칭 신청하기
-                      </button>
-                      {matchingMessage && (
-                        <p className={`text-xs font-medium ${matchingAllowed && matchingMessage.includes("접수") ? "text-emerald-600" : "text-red-600"}`}>
-                          {matchingMessage}
-                        </p>
-                      )}
-                      {!matchingAllowed && (
-                        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
-                          {canTutorAcceptMatching(tutor.id).message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="p-5 border-b border-slate-100">
-                    <SectionHeading icon="baby" className="mb-3">자녀 정보</SectionHeading>
-                    <input
-                      value={childName}
-                      onChange={(e) => setChildName(e.target.value)}
-                      className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm"
-                      placeholder="예: 지우 (7세)"
-                    />
-                  </div>
-
-                  {/* 패키지 선택 */}
-                  <div className="p-5 border-b border-slate-100">
-                    <SectionHeading icon="package" className="mb-3">세션 패키지 선택</SectionHeading>
-                    <div className="space-y-2">
-                      {PACKAGES.map((p) => {
-                        const pBase = tutor.hourlyRate * p.sessions;
-                        const pDiscount = Math.round(pBase * p.discount / 100);
-                        const pFinal = pBase - pDiscount;
-                        const isSelected = selectedPackage === p.id;
-                        return (
-                          <button
-                            key={p.id}
-                            onClick={() => setSelectedPackage(p.id)}
-                            className={`w-full flex items-center justify-between rounded-xl border p-3 text-left transition-all ${
-                              isSelected
-                                ? "border-blue-500 bg-blue-50"
-                                : "border-slate-200 bg-white hover:border-blue-200"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${isSelected ? "border-blue-500" : "border-slate-300"}`}>
-                                {isSelected && <div className="w-2 h-2 rounded-full bg-blue-500" />}
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-1.5">
-                                  <span className={`text-sm font-bold ${isSelected ? "text-blue-700" : "text-slate-700"}`}>{p.label}</span>
-                                  {p.badge && (
-                                    <span className="bg-amber-400 text-slate-900 text-xs font-black px-1.5 py-0.5 rounded-full leading-none">{p.badge}</span>
-                                  )}
-                                </div>
-                                <span className="text-xs text-slate-400">{p.desc}</span>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              {p.discount > 0 && (
-                                <p className="text-xs text-slate-400 line-through">₩{pBase.toLocaleString()}</p>
-                              )}
-                              <p className={`text-sm font-black ${isSelected ? "text-blue-700" : "text-slate-700"}`}>
-                                ₩{pFinal.toLocaleString()}
-                              </p>
-                              {p.discount > 0 && (
-                                <p className="text-xs text-emerald-600 font-semibold">{p.discount}% 할인</p>
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {(selectedPackage === "monthly4" || selectedPackage === "monthly8") && (
-                      <div className="mt-3 bg-indigo-50 border border-indigo-100 rounded-xl p-3">
-                        <p className="text-xs font-bold text-indigo-700 mb-2">✨ 월정기권 프리미엄 혜택 포함</p>
-                        <div className="grid grid-cols-2 gap-1.5 text-[11px] text-indigo-600 font-medium">
-                          {["활동 후 사진", "활동일지 자동생성", "실시간 위치 공유", "AI 놀이영어 리포트"].map((f) => (
-                            <span key={f}>✓ {f}</span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 영어유치원 비교 */}
-                    <div className="mt-3 bg-slate-50 rounded-xl p-3 text-xs text-slate-500 flex items-center justify-between">
-                      <span>영어유치원 월 비용</span>
-                      <div className="text-right">
-                        <p className="line-through text-slate-400">₩{kgPrice.toLocaleString()}</p>
-                        <p className="text-emerald-600 font-bold">와요 {Math.round((1 - sessionPrice / kgPrice) * 100)}% 절약</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 와요 공식 미술 키트 */}
-                  {hasArtKit && (
-                    <div className="p-5 border-b border-slate-100">
-                      <div className="flex items-center justify-between mb-3">
-                        <SectionHeading icon="palette">와요 공식 미술 키트</SectionHeading>
-                        <button
-                          type="button"
-                          onClick={() => setIncludeKit(!includeKit)}
-                          className={`relative w-11 h-6 rounded-full transition-colors ${includeKit ? "bg-amber-500" : "bg-slate-200"}`}
-                        >
-                          <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${includeKit ? "left-5" : "left-0.5"}`} />
-                        </button>
-                      </div>
-
-                      <p className="text-xs text-slate-500 mb-3 leading-relaxed">
-                        {artKit.partner} 제작 · 강사 준비 없이 표준 커리큘럼으로 진행
-                      </p>
-
-                      {includeKit ? (
-                        <div className="space-y-3">
-                          <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 flex justify-between items-center">
-                            <div>
-                              <p className="text-sm font-bold text-amber-900">{artKit.name}</p>
-                              <p className="text-xs text-amber-700">{artKit.track}</p>
-                            </div>
-                            <p className="font-black text-amber-800">₩{artKit.pricePerWeek.toLocaleString()}/회</p>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => setShowKitPreview(!showKitPreview)}
-                            className="text-xs font-bold text-blue-600 hover:underline"
-                          >
-                            {showKitPreview ? "주차별 미리보기 닫기" : "주차별 커리큘럼 미리보기 →"}
-                          </button>
-
-                          {showKitPreview && (
-                            <KitWeekPreview
-                              weeks={artKit.weeks}
-                              selectedWeek={selectedKitWeek}
-                              onSelectWeek={setSelectedKitWeek}
-                              compact
-                            />
-                          )}
-
-                          <p className="text-[11px] text-slate-400">
-                            시작 주차: {selectedKitWeek}주차 · 패키지 {pkg.sessions}회 = 키트 ₩{kitTotal.toLocaleString()}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="text-xs text-slate-400 bg-slate-50 rounded-xl p-3">
-                          키트 미포함 시 강사가 자체 재료로 진행합니다.
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 캘린더 */}
-                  <div className="p-5 border-b border-slate-100">
-                    <SectionHeading icon="calendar" className="mb-3">날짜 선택</SectionHeading>
-                    <div className="flex items-center justify-between mb-3">
-                      <button onClick={() => {
-                        if (calMonth === 0) { setCalMonth(11); setCalYear(calYear - 1); }
-                        else setCalMonth(calMonth - 1);
-                        setSelectedDay(null); setSelectedTime(null);
-                      }} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 font-bold text-lg">‹</button>
-                      <span className="font-bold text-slate-700 text-sm">{calYear}년 {MONTH_NAMES[calMonth]}</span>
-                      <button onClick={() => {
-                        if (calMonth === 11) { setCalMonth(0); setCalYear(calYear + 1); }
-                        else setCalMonth(calMonth + 1);
-                        setSelectedDay(null); setSelectedTime(null);
-                      }} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 font-bold text-lg">›</button>
-                    </div>
-                    <div className="grid grid-cols-7 mb-1">
-                      {DAY_NAMES.map((d, i) => (
-                        <div key={d} className={`text-center text-xs font-bold py-1 ${i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : "text-slate-400"}`}>{d}</div>
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-7 gap-0.5">
-                      {calDays.map((day, i) => {
-                        if (!day) return <div key={`e-${i}`} />;
-                        const isAvail = slotsForTutorDate(tutor, isoForDay(day)).length > 0 && !isPastDay(day);
-                        const isSel = selectedDay === day;
-                        const isPast = isPastDay(day);
-                        return (
-                          <button
-                            key={day}
-                            disabled={!isAvail}
-                            onClick={() => { setSelectedDay(day); setSelectedTime(null); }}
-                            className={`h-8 w-full text-xs rounded-lg font-semibold transition-colors ${
-                              isSel ? "bg-blue-600 text-white shadow" :
-                              isAvail ? "bg-blue-50 text-blue-700 hover:bg-blue-100 hover:shadow-sm" :
-                              isPast ? "text-slate-200 cursor-not-allowed" :
-                              "text-slate-300 cursor-not-allowed"
-                            }`}
-                          >{day}</button>
-                        );
-                      })}
-                    </div>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
-                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-100 border border-blue-300 inline-block" /> 예약가능</span>
-                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-600 inline-block" /> 선택됨</span>
-                    </div>
-                  </div>
-
-                  {/* 시간 선택 */}
-                  <div className="p-5 border-b border-slate-100">
-                    <SectionHeading icon="clock" className="mb-3">
-                      시간 선택
-                      {selectedDay && <span className="text-muted font-normal text-xs ml-1">({calMonth + 1}월 {selectedDay}일)</span>}
-                    </SectionHeading>
-                    {!selectedDay ? (
-                      <p className="text-slate-400 text-xs py-2">날짜를 먼저 선택해주세요</p>
-                    ) : availableTimesForDay.length === 0 ? (
-                      <p className="text-slate-400 text-xs py-2">이 날은 가능한 시간이 없어요</p>
-                    ) : (
-                      <div className="grid grid-cols-3 gap-2">
-                        {availableTimesForDay.map((time) => (
-                          <button
-                            key={time}
-                            onClick={() => setSelectedTime(time)}
-                            className={`py-2 rounded-xl text-sm font-bold border transition-all ${
-                              selectedTime === time
-                                ? "bg-blue-600 text-white border-blue-600 shadow"
-                                : "bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600"
-                            }`}
-                          >{time}</button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* CTA 버튼 영역 */}
-                  <div className="p-5">
-                    {selectedDay && selectedTime && (
-                      <div className="bg-slate-50 rounded-xl p-3 mb-3 text-xs space-y-1">
-                        <div className="flex justify-between text-slate-500">
-                          <span>{pkg.label} · {pkg.sessions}회</span>
-                          <span>₩{basePrice.toLocaleString()}</span>
-                        </div>
-                        {pkg.discount > 0 && (
-                          <div className="flex justify-between text-emerald-600 font-semibold">
-                            <span>정기권 {pkg.discount}% 할인</span>
-                            <span>-₩{discountAmt.toLocaleString()}</span>
-                          </div>
-                        )}
-                        {includeKit && (
-                          <div className="flex justify-between text-amber-700 font-semibold">
-                            <span>미술 키트 {pkg.sessions}회</span>
-                            <span>₩{kitTotal.toLocaleString()}</span>
-                          </div>
-                        )}
-                        <div className="flex justify-between font-black text-slate-800 text-sm border-t border-slate-200 pt-1 mt-1">
-                          <span>합계</span>
-                          <span>₩{finalPrice.toLocaleString()}</span>
-                        </div>
-                      </div>
-                    )}
-
+            <div className="p-4 border-b border-border">
+              <h2 className="text-sm font-semibold text-foreground mb-2">수업 패키지</h2>
+              <input
+                value={childName}
+                onChange={(e) => setChildName(e.target.value)}
+                className="w-full border border-border rounded-2xl px-3 py-2.5 text-sm bg-white mb-3 focus:outline-none focus:border-primary"
+                placeholder="아이 이름 · 지우, 7세"
+              />
+              <div className="space-y-2">
+                {PACKAGES.map((p) => {
+                  const pBase = tutor.hourlyRate * p.sessions;
+                  const pFinal = pBase - Math.round(pBase * p.discount / 100);
+                  const active = selectedPackage === p.id;
+                  return (
                     <button
-                      disabled={!selectedDay || !selectedTime || !childName.trim()}
-                      onClick={() => setBookingStep("confirm")}
-                      className={`w-full py-4 rounded-xl font-black text-base transition-all ${
-                        selectedDay && selectedTime && childName.trim()
-                          ? "bg-amber-400 hover:bg-amber-300 text-slate-900 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-                          : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                      key={p.id}
+                      type="button"
+                      onClick={() => setSelectedPackage(p.id)}
+                      className={`w-full flex items-center justify-between rounded-[18px] border px-3.5 py-3 text-left ${
+                        active ? "border-primary bg-white shadow-[0_8px_24px_rgba(72,128,240,0.12)]" : "border-border bg-white"
                       }`}
                     >
-                      {selectedDay && selectedTime && childName.trim()
-                        ? `예약하기 · ₩${finalPrice.toLocaleString()}`
-                        : "자녀/날짜/시간을 선택해주세요"}
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-bold text-foreground">{p.label}</span>
+                          {p.badge && (
+                            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${active ? "bg-primary text-white" : "bg-surface-muted text-muted"}`}>
+                              {p.badge}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted mt-0.5">{p.desc}{p.discount > 0 ? ` · ${p.discount}%` : ""}</p>
+                      </div>
+                      <div className="text-right">
+                        {p.discount > 0 && <p className="text-[11px] text-muted line-through">{won(pBase)}</p>}
+                        <p className="text-sm font-bold text-foreground">{won(pFinal)}</p>
+                      </div>
                     </button>
-
-                    <div className="flex items-center justify-center gap-4 mt-3 text-xs text-slate-400">
-                      <span className="flex items-center gap-1">
-                        <CheckCircleIcon className="w-3.5 h-3.5 text-emerald-500" />
-                        수수료 ₩0
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <CheckCircleIcon className="w-3.5 h-3.5 text-emerald-500" />
-                        24시간 무료 취소
-                      </span>
-                    </div>
-                  </div>
-                </>
+                  );
+                })}
+              </div>
+              {(selectedPackage === "monthly4" || selectedPackage === "monthly8") && (
+                <div className="mt-3 grid grid-cols-2 gap-1.5">
+                  {PASS_BENEFITS.map((f) => (
+                    <span key={f} className="text-[11px] font-medium text-accent bg-accent-50 rounded-xl px-2.5 py-2">{f}</span>
+                  ))}
+                </div>
               )}
             </div>
 
-            {/* 안심 보장 카드 */}
-            <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-5 text-white">
-              <p className="font-semibold text-sm mb-3 flex items-center gap-2">
-                <Icon name="shield" size={16} /> 와요 안심 보장
-              </p>
-              <ul className="space-y-2 text-xs text-blue-100">
-                <li className="flex items-start gap-2">
-                  <CheckCircleIcon className="w-4 h-4 text-blue-300 flex-shrink-0 mt-0.5" />
-                  신분증·얼굴·비자·소속 기본 인증 완료 강사만 등록
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircleIcon className="w-4 h-4 text-blue-300 flex-shrink-0 mt-0.5" />
-                  월정기권 구독 시 활동사진·일지·위치·AI 리포트 제공
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircleIcon className="w-4 h-4 text-blue-300 flex-shrink-0 mt-0.5" />
-                  수수료 0원, 강사와 직접 거래
-                </li>
-              </ul>
+            {hasArtKit && (
+              <div className="p-4 border-b border-border">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-sm font-semibold text-foreground">미술 키트</h2>
+                    <p className="text-[11px] text-muted mt-0.5">{artKit.partner} · {won(artKit.pricePerWeek)}/회</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIncludeKit(!includeKit)}
+                    className={`relative w-11 h-6 rounded-full transition-colors ${includeKit ? "bg-primary" : "bg-border"}`}
+                    aria-pressed={includeKit}
+                  >
+                    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${includeKit ? "left-5" : "left-0.5"}`} />
+                  </button>
+                </div>
+                {includeKit ? (
+                  <div className="mt-3 space-y-2">
+                    <p className="text-xs text-muted">{artKit.name} · {selectedKitWeek}주차 · {pkg.sessions}회 {won(kitTotal)}</p>
+                    <button type="button" onClick={() => setShowKitPreview(!showKitPreview)} className="text-xs font-semibold text-primary">
+                      {showKitPreview ? "커리큘럼 닫기" : "주차별 커리큘럼"}
+                    </button>
+                    {showKitPreview && (
+                      <KitWeekPreview weeks={artKit.weeks} selectedWeek={selectedKitWeek} onSelectWeek={setSelectedKitWeek} compact />
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-muted mt-2">키트 없이 진행하면 선생님이 준비물로 수업합니다.</p>
+                )}
+              </div>
+            )}
+
+            <div className="p-4 border-b border-border">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold text-foreground">날짜</h2>
+                <div className="flex items-center gap-1">
+                  <button type="button" onClick={() => shiftMonth(-1)} className="w-7 h-7 rounded-full text-muted hover:bg-surface-muted" aria-label="이전 달">‹</button>
+                  <span className="text-xs font-semibold text-foreground w-16 text-center">{calYear}.{String(calMonth + 1).padStart(2, "0")}</span>
+                  <button type="button" onClick={() => shiftMonth(1)} className="w-7 h-7 rounded-full text-muted hover:bg-surface-muted" aria-label="다음 달">›</button>
+                </div>
+              </div>
+              <div className="grid grid-cols-7 mb-1">
+                {DAY_NAMES.map((d) => (
+                  <div key={d} className="text-center text-[10px] font-semibold text-muted py-1">{d}</div>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-1">
+                {calDays.map((day, i) => {
+                  if (!day) return <div key={`e-${i}`} />;
+                  const isAvail = slotsForTutorDate(tutor, isoForDay(day)).length > 0 && !isPastDay(day);
+                  const isSel = selectedDay === day;
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      disabled={!isAvail}
+                      onClick={() => { setSelectedDay(day); setSelectedTime(null); }}
+                      className={`h-8 rounded-full text-xs font-semibold ${
+                        isSel ? "bg-primary text-white" :
+                        isAvail ? "bg-primary-50 text-primary" :
+                        "text-muted/40"
+                      }`}
+                    >
+                      {day}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
+
+            <div className="p-4">
+              <h2 className="text-sm font-semibold text-foreground mb-2">
+                시간
+                {selectedDay && <span className="text-muted font-medium"> · {calMonth + 1}/{selectedDay}</span>}
+              </h2>
+              {!selectedDay ? (
+                <p className="text-xs text-muted">날짜를 선택하면 시간이 열립니다.</p>
+              ) : availableTimesForDay.length === 0 ? (
+                <p className="text-xs text-muted">이 날은 가능한 시간이 없습니다.</p>
+              ) : (
+                <div className="grid grid-cols-3 gap-2">
+                  {availableTimesForDay.map((time) => (
+                    <button
+                      key={time}
+                      type="button"
+                      onClick={() => setSelectedTime(time)}
+                      className={`py-2 rounded-full text-sm font-semibold border ${
+                        selectedTime === time ? "bg-primary text-white border-primary" : "bg-white text-foreground border-border"
+                      }`}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {canBook && (
+                <div className="mt-4 rounded-2xl bg-surface-muted px-3 py-2.5 text-xs space-y-1">
+                  <div className="flex justify-between text-muted">
+                    <span>{pkg.label} · {pkg.sessions}회</span>
+                    <span>{won(sessionPrice)}</span>
+                  </div>
+                  {includeKit && (
+                    <div className="flex justify-between text-muted">
+                      <span>미술 키트</span>
+                      <span>{won(kitTotal)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-bold text-foreground text-sm pt-1">
+                    <span>합계</span>
+                    <span>{won(finalPrice)}</span>
+                  </div>
+                </div>
+              )}
+
+              <button
+                type="button"
+                disabled={!canBook}
+                onClick={() => setBookingStep("confirm")}
+                className="w-full btn-primary py-3.5 text-sm mt-3 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {canBook ? `예약하기 · ${won(finalPrice)}` : "아이, 날짜, 시간을 선택하세요"}
+              </button>
+              <p className="text-[11px] text-muted text-center mt-2">첫 수업 24시간 전까지 취소</p>
+            </div>
+          </>
+        )}
+      </section>
     </div>
   );
 }

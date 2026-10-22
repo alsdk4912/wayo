@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import AppHeader from "../ui/AppHeader";
 import TabBar, { type TabItem } from "../ui/TabBar";
@@ -13,9 +13,10 @@ const tabs: TabItem[] = [
 export default function ParentLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const lockedHome = useLocation().pathname === "/parent";
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className={`bg-background flex flex-col ${lockedHome ? "h-dvh overflow-hidden" : "min-h-screen"}`}>
       <AppHeader
         right={
           <div className="flex items-center gap-3">
@@ -30,7 +31,9 @@ export default function ParentLayout() {
         }
       />
 
-      <main className="flex-1 max-w-lg mx-auto w-full px-4 py-5 pb-24"><Outlet /></main>
+      <main className={`flex-1 max-w-lg mx-auto w-full px-4 min-h-0 ${lockedHome ? "pt-4 pb-[4.75rem] overflow-hidden" : "py-5 pb-24"}`}>
+        <Outlet />
+      </main>
       <TabBar tabs={tabs} />
     </div>
   );
