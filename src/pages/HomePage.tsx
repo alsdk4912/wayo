@@ -19,27 +19,19 @@ export default function HomePage() {
           <br />
           <span className="text-primary">영어메이트</span>와
         </h1>
-        <p className="text-sm text-primary/80 font-medium mt-1 mb-3">English play at home</p>
-
-        <p className="text-muted text-sm leading-relaxed max-w-xs">
-          신분·체류자격 서류를 제출하고 검수를 마친 선생님이 집으로 찾아옵니다.
-        </p>
-        <p className="text-muted/80 text-xs leading-relaxed max-w-xs mt-1 mb-6">
-          A teacher who submitted ID and stay documents, and passed review, visits your home.
-        </p>
+        <p className="text-sm text-primary/80 font-medium mt-1 mb-6">English play at home</p>
 
         <ul className="w-full space-y-2 text-left">
           {points.map((item) => (
-            <li key={item.title} className="flex items-center gap-3 rounded-full bg-primary-50/80 px-4 py-2">
+            <li key={item.title} className="flex items-center gap-3 rounded-2xl bg-primary-50/80 px-4 py-2.5">
               <span className="w-9 h-9 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
                 <Icon name={item.icon} size={16} className="text-primary" />
               </span>
-              <span>
-                <span className="block text-sm font-semibold text-foreground">
-                  {item.title}
-                  <span className="font-medium text-muted"> · {item.titleEn}</span>
-                </span>
-                <span className="block text-xs text-muted">{item.desc} · {item.descEn}</span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-foreground leading-tight">{item.title}</span>
+                <span className="block text-[11px] font-medium text-primary/80 leading-tight">{item.titleEn}</span>
+                <span className="block text-xs text-muted mt-1 leading-tight">{item.desc}</span>
+                <span className="block text-[11px] text-muted/80 leading-tight">{item.descEn}</span>
               </span>
             </li>
           ))}

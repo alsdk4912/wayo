@@ -45,8 +45,16 @@ export default function LoginPage() {
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-primary">로그인</h1>
           <p className="text-sm text-primary font-medium mt-1">Log in</p>
-          <p className="text-sm text-muted mt-4">확인 절차를 마친 영어메이트와 우리 집에서 영어 놀이를 시작하세요.</p>
-          <p className="text-xs text-muted mt-1">Start English play at home with a teacher who completed the platform check.</p>
+          <p className="text-sm text-muted mt-4">
+            확인 절차를 마친 영어메이트와
+            <br />
+            우리 집에서 영어 놀이를 시작하세요.
+          </p>
+          <p className="text-xs text-muted mt-1">
+            Start English play at home with a teacher
+            <br />
+            who completed the platform check.
+          </p>
         </div>
 
         <div className="card p-6">
@@ -77,8 +85,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-xs text-muted text-center mt-4">
-            아직 계정이 없으신가요? New here?{" "}
+          <p className="text-xs text-center mt-4">
             <Link to="/signup" className="text-primary font-semibold hover:underline">
               회원가입 · Sign up
             </Link>
