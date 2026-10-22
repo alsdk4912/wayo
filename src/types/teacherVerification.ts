@@ -92,6 +92,28 @@ export const REQUIRED_DOCUMENT_TYPES: DocumentType[] = [
   "CHILD_SAFETY_DOCUMENT",
 ];
 
+export const DOCUMENT_TYPE_LABELS_EN: Record<DocumentType, string> = {
+  PASSPORT: "Passport or ID",
+  ALIEN_REGISTRATION_CARD: "Alien registration or residence card",
+  VISA_DOCUMENT: "Status of stay document",
+  WORK_ELIGIBILITY_DOCUMENT: "Work eligibility document",
+  CHILD_SAFETY_DOCUMENT: "Child activity suitability document",
+  CRIMINAL_RECORD_RELATED_DOCUMENT: "Child safety related submission",
+  ETC: "Other document",
+};
+
+export const VERIFICATION_STATUS_LABELS_EN: Record<VerificationStatus, string> = {
+  NOT_SUBMITTED: "Not submitted",
+  SUBMITTED: "Submitted",
+  IN_REVIEW: "In review",
+  APPROVED: "Check complete",
+  REJECTED: "Rejected",
+  NEEDS_RESUBMISSION: "Needs update",
+  EXPIRING_SOON: "Expiring soon",
+  EXPIRED: "Expired",
+  SUSPENDED: "Restricted",
+};
+
 export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   PASSPORT: "여권 또는 신분 확인 서류",
   ALIEN_REGISTRATION_CARD: "외국인등록증 또는 거소증",

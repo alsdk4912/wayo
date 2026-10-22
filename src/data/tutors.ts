@@ -440,6 +440,45 @@ export function getTutorById(tutorId: number) {
   return getTutors().find((t) => t.id === tutorId);
 }
 
+const DATE_SLOTS_KEY = "wayo_tutor_date_slots";
+const WEEKDAY_KO = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+
+type DateSlotStore = Record<string, Record<string, string[]>>;
+
+function loadDateSlots(): DateSlotStore {
+  try {
+    const raw = localStorage.getItem(DATE_SLOTS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as DateSlotStore;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+export function getTutorDateOverrides(tutorId: number) {
+  return loadDateSlots()[String(tutorId)] ?? {};
+}
+
+export function weekdaySlotsForDate(tutor: Pick<Tutor, "availableSlots">, isoDate: string) {
+  const date = new Date(`${isoDate}T00:00:00`);
+  const dayName = WEEKDAY_KO[date.getDay()];
+  return tutor.availableSlots.find((slot) => slot.day === dayName)?.slots ?? [];
+}
+
+export function slotsForTutorDate(tutor: Pick<Tutor, "id" | "availableSlots">, isoDate: string) {
+  const overrides = getTutorDateOverrides(tutor.id);
+  if (Object.prototype.hasOwnProperty.call(overrides, isoDate)) return overrides[isoDate];
+  return weekdaySlotsForDate(tutor, isoDate);
+}
+
+export function saveTutorDateSlots(tutorId: number, isoDate: string, slots: string[]) {
+  const all = loadDateSlots();
+  const current = all[String(tutorId)] ?? {};
+  all[String(tutorId)] = { ...current, [isoDate]: [...slots].sort() };
+  localStorage.setItem(DATE_SLOTS_KEY, JSON.stringify(all));
+}
+
 interface TutorProfileInput {
   nameKo: string;
   affiliation: string;

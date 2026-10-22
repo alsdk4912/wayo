@@ -25,7 +25,7 @@ export default function LoginPage() {
       const account = accounts.find((a) => a.email === email);
       if (account) navigate(getRoleHome(account.role), { replace: true });
     } else {
-      setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+      setError("이메일 또는 비밀번호가 올바르지 않습니다. / Incorrect email or password.");
     }
   };
 
@@ -42,15 +42,17 @@ export default function LoginPage() {
     <div className="min-h-screen bg-background">
       <AuthNav active="login" />
       <div className="max-w-md mx-auto px-4 py-10">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground">로그인</h1>
-          <p className="text-sm text-muted mt-1">신원 검증된 원어민과 우리 집에서 영어 놀이를 시작하세요.</p>
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold text-primary">로그인</h1>
+          <p className="text-sm text-primary font-medium mt-1">Log in</p>
+          <p className="text-sm text-muted mt-4">확인 절차를 마친 영어메이트와 우리 집에서 영어 놀이를 시작하세요.</p>
+          <p className="text-xs text-muted mt-1">Start English play at home with a teacher who completed the platform check.</p>
         </div>
 
         <div className="card p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-muted mb-1.5 block">이메일</label>
+              <label className="text-xs font-semibold text-muted mb-1.5 block">이메일 · Email</label>
               <input
                 type="email"
                 value={email}
@@ -60,31 +62,31 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-muted mb-1.5 block">비밀번호</label>
+              <label className="text-xs font-semibold text-muted mb-1.5 block">비밀번호 · Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white"
-                placeholder="비밀번호"
+                placeholder="비밀번호 · Password"
               />
             </div>
             {error && <p className="text-red-500 text-xs">{error}</p>}
             <button type="submit" className="w-full btn-primary py-3.5 text-sm">
-              로그인
+              로그인 · Log in
             </button>
           </form>
 
           <p className="text-xs text-muted text-center mt-4">
-            아직 계정이 없으신가요?{" "}
+            아직 계정이 없으신가요? New here?{" "}
             <Link to="/signup" className="text-primary font-semibold hover:underline">
-              회원가입
+              회원가입 · Sign up
             </Link>
           </p>
         </div>
 
         <div className="card p-5 mt-4">
-          <p className="text-xs font-semibold text-muted mb-3">데모 계정 (원클릭 로그인)</p>
+          <p className="text-xs font-semibold text-muted mb-3">데모 계정 · Demo accounts</p>
           <div className="space-y-2">
             {quickAccounts.map((a) => (
               <button
@@ -99,12 +101,12 @@ export default function LoginPage() {
                 </div>
                 <StatusBadge
                   variant={a.role === "parent" ? "basic" : a.role === "tutor" ? "premium" : "confirmed"}
-                  label={a.role === "parent" ? "학부모" : a.role === "tutor" ? "강사" : "관리자"}
+                  label={a.role === "parent" ? "학부모 · Parent" : a.role === "tutor" ? "강사 · Tutor" : "관리자 · Admin"}
                 />
               </button>
             ))}
           </div>
-          <p className="text-xs text-muted text-center mt-3">공통 비밀번호: wayo1234</p>
+          <p className="text-xs text-muted text-center mt-3">공통 비밀번호 · Shared password: wayo1234</p>
         </div>
       </div>
     </div>

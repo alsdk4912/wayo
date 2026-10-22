@@ -3,14 +3,15 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getTutorById } from "../../data/tutors";
 import {
+  getTutorVerificationBadgeLabel,
   getVerificationByTeacherId,
   getDocuments,
   submitTeacherVerification,
 } from "../../data/teacherVerification";
 import {
-  DOCUMENT_TYPE_LABELS,
+  DOCUMENT_TYPE_LABELS_EN,
   REQUIRED_DOCUMENT_TYPES,
-  VERIFICATION_STATUS_LABELS,
+  VERIFICATION_STATUS_LABELS_EN,
   type DocumentType,
 } from "../../types/teacherVerification";
 import TeacherVerificationBadge from "../../components/TeacherVerificationBadge";
@@ -21,6 +22,13 @@ const ALL_DOC_TYPES: DocumentType[] = [
   "CRIMINAL_RECORD_RELATED_DOCUMENT",
   "ETC",
 ];
+
+const ERROR_EN: Record<string, string> = {
+  "검증 정보 활용 동의가 필요합니다.": "Please agree before submitting.",
+  "필수 정보를 모두 입력해주세요.": "Fill in every required field.",
+  "최소 1개 이상의 서류를 제출해주세요.": "Upload at least one document.",
+  "검수중인 서류는 수정할 수 없습니다. 관리자 안내를 기다려주세요.": "Documents in review cannot be changed yet.",
+};
 
 function readFileAsBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -56,9 +64,9 @@ export default function TutorVerificationPage() {
   if (!user || !tutor) {
     return (
       <div className="card p-5 text-center">
-        <p className="font-semibold text-foreground mb-2">프로필 등록 후 검증 서류를 제출할 수 있습니다.</p>
+        <p className="font-semibold text-foreground mb-2">Create your profile before uploading documents.</p>
         <Link to="/tutor/profile" className="btn-primary text-sm px-4 py-2.5 inline-flex">
-          프로필 등록하기
+          Create profile
         </Link>
       </div>
     );
@@ -106,13 +114,13 @@ export default function TutorVerificationPage() {
       });
 
       if (!result.ok) {
-        setError(result.message);
+        setError(ERROR_EN[result.message] ?? result.message);
       } else {
-        setMessage("서류가 제출되었습니다. 검수 결과를 기다려주세요.");
+        setMessage("Submitted. Please wait for review.");
         window.location.reload();
       }
     } catch {
-      setError("파일 처리 중 오류가 발생했습니다.");
+      setError("Could not read the file.");
     } finally {
       setSubmitting(false);
     }
@@ -121,48 +129,51 @@ export default function TutorVerificationPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-black text-slate-900">강사 검증 서류 제출</h1>
+        <h1 className="text-xl font-black text-slate-900">Verification documents</h1>
         <p className="text-sm text-slate-500 mt-1">
-          영유아 대상 수업 안전성 확보를 위해 신분, 체류자격, 취업 가능 여부, 아동 대상 활동 적합성 확인 절차가 필요합니다.
+          Lessons with young children need an ID check, stay status, work eligibility, and a child-activity suitability review.
         </p>
       </div>
 
       <div className="card p-4 flex items-center justify-between">
         <div>
-          <p className="text-xs text-muted mb-1">현재 검증 상태</p>
-          <TeacherVerificationBadge status={verification?.status ?? "NOT_SUBMITTED"} />
+          <p className="text-xs text-muted mb-1">Current status</p>
+          <TeacherVerificationBadge
+            status={verification?.status ?? "NOT_SUBMITTED"}
+            label={getTutorVerificationBadgeLabel(verification?.status ?? "NOT_SUBMITTED")}
+          />
           <p className="text-xs text-slate-500 mt-1">
-            {VERIFICATION_STATUS_LABELS[verification?.status ?? "NOT_SUBMITTED"]}
+            {VERIFICATION_STATUS_LABELS_EN[verification?.status ?? "NOT_SUBMITTED"]}
           </p>
         </div>
         {verification?.submittedAt && (
           <p className="text-xs text-slate-400">
-            제출일: {verification.submittedAt.slice(0, 10)}
+            Submitted {verification.submittedAt.slice(0, 10)}
           </p>
         )}
       </div>
 
       {verification?.resubmissionReason && (
         <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
-          <p className="text-xs font-bold text-orange-700 mb-1">보완 요청 사유</p>
+          <p className="text-xs font-bold text-orange-700 mb-1">Update requested</p>
           <p className="text-sm text-orange-900">{verification.resubmissionReason}</p>
         </div>
       )}
       {verification?.rejectionReason && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-          <p className="text-xs font-bold text-red-700 mb-1">반려 사유</p>
+          <p className="text-xs font-bold text-red-700 mb-1">Rejected</p>
           <p className="text-sm text-red-900">{verification.rejectionReason}</p>
         </div>
       )}
 
       {docs.length > 0 && (
         <div className="card p-4">
-          <p className="text-sm font-semibold text-foreground mb-2">제출된 서류 (파일명만 표시)</p>
+          <p className="text-sm font-semibold text-foreground mb-2">Uploaded files</p>
           <ul className="space-y-1">
             {docs.map((d) => (
               <li key={d.id} className="text-xs text-muted flex items-center gap-2">
                 <Icon name="clipboard" size={14} />
-                {DOCUMENT_TYPE_LABELS[d.documentType]} — {d.originalFileName}
+                {DOCUMENT_TYPE_LABELS_EN[d.documentType]} — {d.originalFileName}
               </li>
             ))}
           </ul>
@@ -173,27 +184,27 @@ export default function TutorVerificationPage() {
         <form onSubmit={handleSubmit} className="card p-4 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <label className="block text-sm">
-              <span className="text-xs font-semibold text-muted">국적</span>
+              <span className="text-xs font-semibold text-muted">Nationality</span>
               <input
                 value={nationality}
                 onChange={(e) => setNationality(e.target.value)}
                 className="mt-1 w-full border border-border rounded-xl px-3 py-2 text-sm"
-                placeholder="예: 미국"
+                placeholder="e.g. United States"
                 required
               />
             </label>
             <label className="block text-sm">
-              <span className="text-xs font-semibold text-muted">체류자격</span>
+              <span className="text-xs font-semibold text-muted">Status of stay</span>
               <input
                 value={visaType}
                 onChange={(e) => setVisaType(e.target.value)}
                 className="mt-1 w-full border border-border rounded-xl px-3 py-2 text-sm"
-                placeholder="예: E-2"
+                placeholder="e.g. E-2"
                 required
               />
             </label>
             <label className="block text-sm">
-              <span className="text-xs font-semibold text-muted">체류만료일</span>
+              <span className="text-xs font-semibold text-muted">Stay expiry</span>
               <input
                 type="date"
                 value={visaExpiryDate}
@@ -203,7 +214,7 @@ export default function TutorVerificationPage() {
               />
             </label>
             <label className="block text-sm">
-              <span className="text-xs font-semibold text-muted">서류 발급일</span>
+              <span className="text-xs font-semibold text-muted">Document issue date</span>
               <input
                 type="date"
                 value={documentIssuedDate}
@@ -215,12 +226,12 @@ export default function TutorVerificationPage() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-muted mb-2">제출 서류</p>
+            <p className="text-xs font-semibold text-muted mb-2">Documents</p>
             <div className="space-y-3">
               {ALL_DOC_TYPES.map((type) => (
                 <label key={type} className="block rounded-xl border border-border p-3">
                   <span className="text-sm font-medium text-foreground">
-                    {DOCUMENT_TYPE_LABELS[type]}
+                    {DOCUMENT_TYPE_LABELS_EN[type]}
                     {REQUIRED_DOCUMENT_TYPES.includes(type) && (
                       <span className="text-red-500 ml-1">*</span>
                     )}
@@ -231,7 +242,7 @@ export default function TutorVerificationPage() {
                     onChange={(e) => handleFile(type, e.target.files?.[0] ?? null)}
                   />
                   {uploads[type] && (
-                    <p className="text-[11px] text-muted mt-1">선택: {uploads[type]!.name}</p>
+                    <p className="text-[11px] text-muted mt-1">Selected: {uploads[type]!.name}</p>
                   )}
                 </label>
               ))}
@@ -239,13 +250,13 @@ export default function TutorVerificationPage() {
           </div>
 
           <label className="block text-sm">
-            <span className="text-xs font-semibold text-muted">추가 설명 메모</span>
+            <span className="text-xs font-semibold text-muted">Note</span>
             <textarea
               value={additionalNote}
               onChange={(e) => setAdditionalNote(e.target.value)}
               className="mt-1 w-full border border-border rounded-xl px-3 py-2 text-sm"
               rows={3}
-              placeholder="검수에 참고할 내용이 있으면 입력해주세요."
+              placeholder="Anything the reviewer should know"
             />
           </label>
 
@@ -257,7 +268,7 @@ export default function TutorVerificationPage() {
               className="mt-1"
             />
             <span className="text-slate-600">
-              제출한 정보는 원어민 강사 검증 및 아동 대상 수업 안전성 확인을 위해 사용되며, 검수 목적 외로 공개되지 않습니다.
+              This information is used only to review tutor identity, stay status, and suitability for lessons with children. It is not published.
             </span>
           </label>
 
@@ -269,7 +280,7 @@ export default function TutorVerificationPage() {
             disabled={submitting}
             className="w-full btn-primary py-3 text-sm font-semibold disabled:opacity-50"
           >
-            {verification?.status === "NEEDS_RESUBMISSION" ? "재제출하기" : "서류 제출하기"}
+            {verification?.status === "NEEDS_RESUBMISSION" ? "Submit again" : "Submit documents"}
           </button>
         </form>
       )}
@@ -277,16 +288,16 @@ export default function TutorVerificationPage() {
       {verification?.status === "IN_REVIEW" && (
         <div className="card p-4 text-center text-sm text-muted">
           <Icon name="clock" size={24} className="mx-auto mb-2 opacity-50" />
-          서류 검수가 진행 중입니다. 완료 시 알림을 드립니다.
+          Your documents are in review.
         </div>
       )}
 
       {verification?.status === "APPROVED" && (
         <div className="card p-4 text-center">
-          <p className="text-sm font-semibold text-emerald-700">확인 절차가 완료되었습니다.</p>
+          <p className="text-sm font-semibold text-emerald-700">Check complete.</p>
           {verification.nextReviewDate && (
             <p className="text-xs text-muted mt-1">
-              다음 재확인 예정일: {verification.nextReviewDate}
+              Next review: {verification.nextReviewDate}
             </p>
           )}
         </div>

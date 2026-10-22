@@ -5,7 +5,7 @@ import { getTutorById } from "../../data/tutors";
 import { getTutorSessions } from "../../data/bookings";
 import { artKit, kitOrders } from "../../data/kits";
 import { isBasicVerified, isPremiumVerified } from "../../utils/verification";
-import { getVerificationByTeacherId } from "../../data/teacherVerification";
+import { getTutorVerificationBadgeLabel, getVerificationByTeacherId } from "../../data/teacherVerification";
 import TeacherVerificationBadge from "../../components/TeacherVerificationBadge";
 import CurriculumGuideModal from "../../components/CurriculumGuideModal";
 import StatusBadge from "../../components/ui/StatusBadge";
@@ -22,10 +22,10 @@ export default function TutorDashboardPage() {
   if (!tutor) {
     return (
       <div className="card p-5 text-center">
-        <p className="font-semibold text-foreground mb-2">원어민 프로필 등록이 필요합니다.</p>
-        <p className="text-sm text-muted mb-4">프로필 등록 후 학부모에게 노출되고 매칭/예약을 받을 수 있습니다.</p>
+        <p className="font-semibold text-foreground mb-2">Add your tutor profile first.</p>
+        <p className="text-sm text-muted mb-4">Parents can find you and request sessions after your profile is saved.</p>
         <Link to="/tutor/profile" className="inline-flex btn-primary text-sm px-4 py-2.5">
-          프로필 등록하기
+          Create profile
         </Link>
       </div>
     );
@@ -44,9 +44,9 @@ export default function TutorDashboardPage() {
           <h1 className="font-black text-slate-900">{tutor.name}</h1>
           <p className="text-sm text-slate-500">{tutor.affiliation}</p>
           {isPremiumVerified(tutor) ? (
-            <StatusBadge variant="premium" label="프리미엄 인증" />
+            <StatusBadge variant="premium" label="Premium check" />
           ) : isBasicVerified(tutor) ? (
-            <span className="mt-1 inline-block"><StatusBadge variant="basic" label="기본 인증" /></span>
+            <span className="mt-1 inline-block"><StatusBadge variant="basic" label="Basic check" /></span>
           ) : null}
         </div>
       </div>
@@ -54,37 +54,40 @@ export default function TutorDashboardPage() {
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white rounded-2xl p-3 border border-slate-100 text-center">
           <p className="text-xl font-black text-slate-900">{upcoming.length}</p>
-          <p className="text-[10px] text-slate-500">예정 세션</p>
+          <p className="text-[10px] text-slate-500">Upcoming</p>
         </div>
         <div className="bg-white rounded-2xl p-3 border border-slate-100 text-center">
           <p className="text-xl font-black text-slate-900">{tutor.rating}</p>
-          <p className="text-[10px] text-slate-500">평점</p>
+          <p className="text-[10px] text-slate-500">Rating</p>
         </div>
         <div className="bg-white rounded-2xl p-3 border border-slate-100 text-center">
           <p className="text-xl font-black text-emerald-600">₩{(tutor.hourlyRate * 8).toLocaleString()}</p>
-          <p className="text-[10px] text-slate-500">이번달 예상</p>
+          <p className="text-[10px] text-slate-500">Est. this month</p>
         </div>
       </div>
 
       {user?.tutorId && (
         <Link to="/tutor/verification" className="card p-4 flex items-center justify-between hover:border-primary/30">
           <div>
-            <p className="text-sm font-semibold text-foreground">강사 검증 서류</p>
-            <p className="text-xs text-muted mt-0.5">신분·체류자격 확인 절차 제출</p>
+            <p className="text-sm font-semibold text-foreground">Verification documents</p>
+            <p className="text-xs text-muted mt-0.5">ID, stay status, and child-activity checks</p>
           </div>
-          <TeacherVerificationBadge status={getVerificationByTeacherId(user.tutorId)?.status ?? "NOT_SUBMITTED"} />
+          <TeacherVerificationBadge
+            status={getVerificationByTeacherId(user.tutorId)?.status ?? "NOT_SUBMITTED"}
+            label={getTutorVerificationBadgeLabel(getVerificationByTeacherId(user.tutorId)?.status ?? "NOT_SUBMITTED")}
+          />
         </Link>
       )}
 
       {/* 다음 세션 키트 주문 */}
       <section className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-[20px] border border-primary/15 overflow-hidden">
         <div className="px-4 py-3 border-b border-primary/10 flex items-center justify-between">
-          <h2 className="font-bold text-foreground text-sm">다음 세션 키트 주문</h2>
-          <span className="text-[10px] font-bold bg-spark text-foreground px-2 py-0.5 rounded-full">와요 공식</span>
+          <h2 className="font-bold text-foreground text-sm">Order the next session kit</h2>
+          <span className="text-[10px] font-bold bg-spark text-foreground px-2 py-0.5 rounded-full">Wayo kit</span>
         </div>
         <div className="p-4 space-y-3">
           {upcoming.length === 0 ? (
-            <p className="text-sm text-muted text-center py-4">예정된 세션이 없습니다.</p>
+            <p className="text-sm text-muted text-center py-4">No upcoming sessions.</p>
           ) : (
             upcoming.map((s) => {
               const week = s.kitWeek ?? 1;
@@ -99,11 +102,11 @@ export default function TutorDashboardPage() {
                       <p className="text-xs text-slate-500">{s.date} {s.time}</p>
                     </div>
                     {s.kitIncluded && (
-                      <span className="text-[10px] font-bold bg-primary-50 text-primary px-2 py-0.5 rounded-full">키트 포함 예약</span>
+                      <span className="text-[10px] font-bold bg-primary-50 text-primary px-2 py-0.5 rounded-full">Kit included</span>
                     )}
                   </div>
                   <p className="text-xs text-slate-600 mb-3">
-                    {week}주차 · {artKit.weeks.find((w) => w.week === week)?.title ?? artKit.name}
+                    Week {week} · {artKit.weeks.find((w) => w.week === week)?.title ?? artKit.name}
                   </p>
                   <div className="flex gap-2">
                     {!isOrdered ? (
@@ -111,18 +114,18 @@ export default function TutorDashboardPage() {
                         onClick={() => handleOrderKit(s.id, week)}
                         className="flex-1 py-2.5 btn-primary text-sm font-bold"
                       >
-                        키트 주문 · ₩{artKit.pricePerWeek.toLocaleString()}
+                        Order kit · ₩{artKit.pricePerWeek.toLocaleString()}
                       </button>
                     ) : (
                       <div className="flex-1 py-2.5 bg-emerald-50 text-emerald-700 text-sm font-bold rounded-xl text-center border border-emerald-100">
-                        ✓ 주문 완료
+                        Ordered
                       </div>
                     )}
                     <button
                       onClick={() => setGuideWeek(week)}
                       className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl"
                     >
-                      가이드
+                      Guide
                     </button>
                   </div>
                 </div>
@@ -135,19 +138,19 @@ export default function TutorDashboardPage() {
       {/* 키트 주문 현황 */}
       {myOrders.length > 0 && (
         <section>
-          <h2 className="font-bold text-slate-900 mb-3 text-sm">키트 배송 현황</h2>
+          <h2 className="font-bold text-slate-900 mb-3 text-sm">Kit delivery</h2>
           {myOrders.map((o) => (
             <div key={o.id} className="bg-white rounded-2xl p-4 border border-slate-100 mb-2 flex justify-between items-center">
               <div>
-                <p className="font-bold text-slate-800 text-sm">{o.week}주차 키트 · {o.childName}</p>
-                <p className="text-xs text-slate-400">세션 {o.sessionDate}</p>
+                <p className="font-bold text-slate-800 text-sm">Week {o.week} kit · {o.childName}</p>
+                <p className="text-xs text-slate-400">Session {o.sessionDate}</p>
               </div>
               <span className={`text-xs font-bold px-2 py-1 rounded-full ${
                 o.status === "delivered" ? "bg-emerald-50 text-emerald-600" :
                 o.status === "preparing" ? "bg-blue-50 text-blue-600" :
                 "bg-amber-50 text-amber-600"
               }`}>
-                {o.status === "delivered" ? "배송완료" : o.status === "preparing" ? "포장중" : "접수"}
+                {o.status === "delivered" ? "Delivered" : o.status === "preparing" ? "Packing" : "Received"}
               </span>
             </div>
           ))}
@@ -155,7 +158,7 @@ export default function TutorDashboardPage() {
       )}
 
       <section>
-        <h2 className="font-bold text-slate-900 mb-3">오늘의 일정</h2>
+        <h2 className="font-bold text-slate-900 mb-3">Today</h2>
         {upcoming.slice(0, 2).map((s) => (
           <div key={s.id} className="bg-white rounded-2xl p-4 border border-slate-100 mb-2">
             <p className="font-bold text-slate-800 text-sm">{s.time} · {s.childName}</p>
@@ -165,7 +168,7 @@ export default function TutorDashboardPage() {
       </section>
 
       {guideWeek !== null && (
-        <CurriculumGuideModal kit={artKit} week={guideWeek} onClose={() => setGuideWeek(null)} />
+        <CurriculumGuideModal kit={artKit} week={guideWeek} lang="en" onClose={() => setGuideWeek(null)} />
       )}
     </div>
   );

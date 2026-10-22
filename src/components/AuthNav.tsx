@@ -8,7 +8,7 @@ interface Props {
 export default function AuthNav({ active }: Props) {
   return (
     <nav className="bg-white border-b border-border sticky top-0 z-50">
-      <div className="max-w-lg mx-auto px-5 h-14 flex items-center justify-between">
+      <div className="max-w-lg mx-auto px-5 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center" aria-label="와요 홈">
           <BrandLogo className="h-8" />
         </Link>
@@ -19,15 +19,17 @@ export default function AuthNav({ active }: Props) {
               active === "login" ? "bg-white text-foreground shadow-sm" : "text-muted"
             }`}
           >
-            로그인
+            <span className="block leading-tight">로그인</span>
+            <span className={`block text-[10px] font-normal ${active === "login" ? "text-muted" : ""}`}>Log in</span>
           </Link>
           <Link
             to="/signup"
-            className={`text-sm font-semibold px-4 py-1.5 rounded-full transition-colors ${
+            className={`text-sm font-semibold px-4 py-1.5 rounded-full transition-colors text-center ${
               active === "signup" ? "bg-primary text-white shadow-sm" : "text-muted"
             }`}
           >
-            회원가입
+            <span className="block leading-tight">회원가입</span>
+            <span className={`block text-[10px] font-normal ${active === "signup" ? "text-white/80" : ""}`}>Sign up</span>
           </Link>
         </div>
       </div>

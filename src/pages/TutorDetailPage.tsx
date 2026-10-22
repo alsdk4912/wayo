@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getTutorById } from "../data/tutors";
+import { getTutorById, slotsForTutorDate } from "../data/tutors";
 import { artKit, supportsArtKit } from "../data/kits";
 import { isBasicVerified, isPremiumVerified } from "../utils/verification";
 import { createMatchingRequest } from "../data/matching";
@@ -23,10 +23,6 @@ function getCalendarDays(year: number, month: number) {
   for (let d = 1; d <= daysInMonth; d++) days.push(d);
   return days;
 }
-
-const dayIndexMap: Record<string, number> = {
-  일요일: 0, 월요일: 1, 화요일: 2, 수요일: 3, 목요일: 4, 금요일: 5, 토요일: 6,
-};
 
 // 세션 패키지
 const PACKAGES = [
@@ -132,13 +128,8 @@ export default function TutorDetailPage() {
   }
 
   const calDays = getCalendarDays(calYear, calMonth);
-  const availableDayIndices = new Set(tutor.availableSlots.map((s) => dayIndexMap[s.day]));
-  const selectedDayName = selectedDay !== null
-    ? DAY_NAMES[new Date(calYear, calMonth, selectedDay).getDay()] + "요일"
-    : null;
-  const availableTimesForDay = selectedDayName
-    ? tutor.availableSlots.find((s) => s.day === selectedDayName)?.slots ?? []
-    : [];
+  const isoForDay = (day: number) => `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  const availableTimesForDay = selectedDay ? slotsForTutorDate(tutor, isoForDay(selectedDay)) : [];
   const isPastDay = (d: number) => {
     const date = new Date(calYear, calMonth, d);
     return date < new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -738,8 +729,7 @@ export default function TutorDetailPage() {
                     <div className="grid grid-cols-7 gap-0.5">
                       {calDays.map((day, i) => {
                         if (!day) return <div key={`e-${i}`} />;
-                        const dow = new Date(calYear, calMonth, day).getDay();
-                        const isAvail = availableDayIndices.has(dow) && !isPastDay(day);
+                        const isAvail = slotsForTutorDate(tutor, isoForDay(day)).length > 0 && !isPastDay(day);
                         const isSel = selectedDay === day;
                         const isPast = isPastDay(day);
                         return (

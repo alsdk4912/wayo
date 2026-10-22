@@ -4,11 +4,11 @@ import AppHeader from "../ui/AppHeader";
 import TabBar, { type TabItem } from "../ui/TabBar";
 
 const tabs: TabItem[] = [
-  { to: "/tutor", label: "홈", icon: "home", exact: true },
-  { to: "/tutor/profile", label: "프로필", icon: "profile" },
-  { to: "/tutor/verification", label: "검증", icon: "shield" },
-  { to: "/tutor/schedule", label: "일정", icon: "calendar" },
-  { to: "/tutor/sessions", label: "세션", icon: "check-circle" },
+  { to: "/tutor", label: "Home", icon: "home", exact: true },
+  { to: "/tutor/profile", label: "Profile", icon: "profile" },
+  { to: "/tutor/verification", label: "Checks", icon: "shield" },
+  { to: "/tutor/schedule", label: "Schedule", icon: "calendar" },
+  { to: "/tutor/sessions", label: "Sessions", icon: "check-circle" },
 ];
 
 export default function TutorLayout() {
@@ -19,13 +19,13 @@ export default function TutorLayout() {
     <div className="min-h-screen bg-background flex flex-col">
       <AppHeader
         title={user?.name}
-        subtitle="강사 포털"
+        subtitle="Tutor portal"
         right={
           <button
             onClick={() => { logout(); navigate("/login"); }}
             className="text-xs text-muted hover:text-foreground font-medium"
           >
-            로그아웃
+            Log out
           </button>
         }
       />

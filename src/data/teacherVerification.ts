@@ -560,6 +560,29 @@ export function isTutorVisibleInSearch(teacherId: number) {
   return v.status !== "SUSPENDED";
 }
 
+export function getTutorVerificationBadgeLabel(status: VerificationStatus): string {
+  switch (status) {
+    case "NOT_SUBMITTED":
+      return "Not started";
+    case "SUBMITTED":
+    case "IN_REVIEW":
+      return "In review";
+    case "APPROVED":
+      return "Check complete";
+    case "EXPIRING_SOON":
+      return "Review due";
+    case "EXPIRED":
+      return "Expired";
+    case "SUSPENDED":
+      return "Restricted";
+    case "REJECTED":
+    case "NEEDS_RESUBMISSION":
+      return "Not started";
+    default:
+      return "Not started";
+  }
+}
+
 export function getParentVerificationBadgeLabel(status: VerificationStatus): string {
   switch (status) {
     case "NOT_SUBMITTED":
