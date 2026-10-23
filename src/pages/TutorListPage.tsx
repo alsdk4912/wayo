@@ -3,6 +3,10 @@ import { getTutors } from "../data/tutors";
 import { isTutorVisibleInSearch } from "../data/teacherVerification";
 import TutorCard from "../components/TutorCard";
 import { isPremiumVerified } from "../utils/verification";
+import { coverageOf } from "../utils/distance";
+import { placeById, PLACES } from "../data/places";
+import { updateAccount } from "../data/users";
+import { useAuth } from "../context/AuthContext";
 import Icon from "../components/ui/Icon";
 
 const specialtyOptions = ["전체", "미술", "놀이", "스포츠", "음악", "쿠킹", "코딩", "동화책"];
@@ -14,18 +18,20 @@ const sortOptions = [
 ];
 
 export default function TutorListPage() {
+  const { user, refreshUser } = useAuth();
   const [selectedSpecialty, setSelectedSpecialty] = useState("전체");
   const [sortBy, setSortBy] = useState("rating");
   const [premiumOnly, setPremiumOnly] = useState(false);
+  const [areaId, setAreaId] = useState(user?.areaId ?? "");
+  const point = placeById(areaId);
 
   const tutors = getTutors();
 
   const filtered = tutors
     .filter((t) => isTutorVisibleInSearch(t.id))
+    .filter((t) => (point ? coverageOf(t, point).ok : false))
     .filter((t) => {
-      if (selectedSpecialty !== "전체") {
-        if (!t.specialties.some((s) => s.includes(selectedSpecialty))) return false;
-      }
+      if (selectedSpecialty !== "전체" && !t.specialties.some((s) => s.includes(selectedSpecialty))) return false;
       if (premiumOnly && !isPremiumVerified(t)) return false;
       return true;
     })
@@ -40,8 +46,25 @@ export default function TutorListPage() {
   return (
     <div className="min-h-screen bg-background -mx-4 -mt-5">
       <div className="bg-white border-b border-border px-4 py-6">
-        <h1 className="text-xl font-bold text-foreground mb-1">검증된 원어민 강사</h1>
-        <p className="text-muted text-sm">기본 인증 완료 · 프리미엄 인증은 더 높은 안심</p>
+        <h1 className="text-xl font-bold text-foreground mb-1">방문 가능한 선생님</h1>
+        <p className="text-muted text-sm">{point ? `${placeById(areaId)?.district} ${placeById(areaId)?.label}에서 이동 범위가 닿는 선생님` : "수업 받을 동네를 선택하면 목록이 열립니다."}</p>
+        <select
+          value={areaId}
+          onChange={(e) => {
+            const next = e.target.value;
+            setAreaId(next);
+            const place = placeById(next);
+            if (!user || !place) return;
+            const updated = updateAccount(user.id, { areaId: next, address: user.address || `${place.district} ${place.label}` });
+            if (updated) refreshUser(updated);
+          }}
+          className="mt-3 w-full border border-border rounded-2xl px-3 py-2.5 text-sm bg-white"
+        >
+          <option value="">동네 선택</option>
+          {PLACES.map((place) => (
+            <option key={place.id} value={place.id}>{place.district} {place.label}</option>
+          ))}
+        </select>
       </div>
 
       <div className="px-4 py-5">
@@ -109,7 +132,7 @@ export default function TutorListPage() {
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((tutor) => (
-              <TutorCard key={tutor.id} tutor={tutor} />
+              <TutorCard key={tutor.id} tutor={tutor} distanceKm={point ? coverageOf(tutor, point).km : null} />
             ))}
           </div>
         ) : (

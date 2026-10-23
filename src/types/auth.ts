@@ -8,4 +8,8 @@ export interface AuthUser {
   tutorId?: number;
   children?: string;
   avatar?: string;
+  phone?: string;
+  birthDate?: string;
+  address?: string;
+  areaId?: string;
 }

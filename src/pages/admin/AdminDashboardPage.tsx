@@ -1,6 +1,6 @@
 import { getTutors } from "../../data/tutors";
 import { getBookings } from "../../data/bookings";
-import { artKit, kitOrders } from "../../data/kits";
+import { artKit, listKitOrders } from "../../data/kits";
 import { listDemoAccounts } from "../../data/users";
 import { isPremiumVerified } from "../../utils/verification";
 
@@ -10,6 +10,7 @@ export default function AdminDashboardPage() {
   const accounts = listDemoAccounts();
   const premiumCount = tutors.filter(isPremiumVerified).length;
   const pendingPremium = tutors.filter((t) => !isPremiumVerified(t)).length;
+  const kitOrders = listKitOrders();
   const kitMargin = kitOrders.reduce((s, o) => s + o.margin, 0);
 
   return (

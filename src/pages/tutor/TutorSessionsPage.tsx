@@ -1,5 +1,7 @@
+import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getTutorSessions, updateBookingStatus } from "../../data/bookings";
+import { visitThreadId } from "../../data/chats";
 import StatusBadge from "../../components/ui/StatusBadge";
 
 const statusMap = {
@@ -47,8 +49,10 @@ export default function TutorSessionsPage() {
               Mark complete
             </button>
           )}
-          {s.status === "completed" && (
-            <p className="mt-2 text-xs text-emerald-600 font-medium">Notes and photos sent</p>
+          {s.status !== "cancelled" && (
+            <Link to={`/tutor/chats/${visitThreadId(s.parentId, s.tutorId)}`} className="mt-3 inline-block text-xs font-semibold text-primary">
+              Chat about this session
+            </Link>
           )}
         </div>
       ))}

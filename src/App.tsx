@@ -7,12 +7,19 @@ import TutorLayout from "./components/layouts/TutorLayout";
 import AdminLayout from "./components/layouts/AdminLayout";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import AccountPage from "./pages/account/AccountPage";
+import ChatListPage from "./pages/account/ChatListPage";
+import ChatRoomPage from "./pages/account/ChatRoomPage";
 import HomePage from "./pages/HomePage";
 import TutorListPage from "./pages/TutorListPage";
 import TutorDetailPage from "./pages/TutorDetailPage";
 import ParentHomePage from "./pages/parent/ParentHomePage";
 import ParentBookingsPage from "./pages/parent/ParentBookingsPage";
 import ParentSubscriptionPage from "./pages/parent/ParentSubscriptionPage";
+import ParentGroupsPage from "./pages/parent/ParentGroupsPage";
+import ParentGroupDetailPage from "./pages/parent/ParentGroupDetailPage";
+import ParentGroupCreatePage from "./pages/parent/ParentGroupCreatePage";
 import TutorDashboardPage from "./pages/tutor/TutorDashboardPage";
 import TutorSchedulePage from "./pages/tutor/TutorSchedulePage";
 import TutorSessionsPage from "./pages/tutor/TutorSessionsPage";
@@ -43,14 +50,21 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot" element={<ForgotPasswordPage />} />
           <Route path="/" element={<RootRedirect />} />
 
           <Route path="/parent" element={<ProtectedRoute allowed={["parent"]}><ParentLayout /></ProtectedRoute>}>
             <Route index element={<ParentHomePage />} />
             <Route path="tutors" element={<TutorListPage />} />
             <Route path="tutors/:id" element={<TutorDetailPage />} />
+            <Route path="groups" element={<ParentGroupsPage />} />
+            <Route path="groups/new" element={<ParentGroupCreatePage />} />
+            <Route path="groups/:id" element={<ParentGroupDetailPage />} />
             <Route path="bookings" element={<ParentBookingsPage />} />
             <Route path="subscription" element={<ParentSubscriptionPage />} />
+            <Route path="me" element={<AccountPage />} />
+            <Route path="chats" element={<ChatListPage />} />
+            <Route path="chats/:threadId" element={<ChatRoomPage />} />
           </Route>
 
           <Route path="/tutor" element={<ProtectedRoute allowed={["tutor"]}><TutorLayout /></ProtectedRoute>}>
@@ -59,6 +73,9 @@ export default function App() {
             <Route path="verification" element={<TutorVerificationPage />} />
             <Route path="schedule" element={<TutorSchedulePage />} />
             <Route path="sessions" element={<TutorSessionsPage />} />
+            <Route path="me" element={<AccountPage />} />
+            <Route path="chats" element={<ChatListPage />} />
+            <Route path="chats/:threadId" element={<ChatRoomPage />} />
           </Route>
 
           <Route path="/admin" element={<ProtectedRoute allowed={["admin"]}><AdminLayout /></ProtectedRoute>}>

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 import type { AuthUser } from "../types/auth";
-import { authenticate, registerAccount, type RegisterRole } from "../data/users";
+import { authenticate, getAccounts, registerAccount, type RegisterRole } from "../data/users";
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -11,6 +11,10 @@ interface AuthContextValue {
     password: string;
     name: string;
     children?: string;
+    phone: string;
+    birthDate: string;
+    address: string;
+    areaId: string;
   }) => { ok: true } | { ok: false; message: string };
   refreshUser: (nextUser: AuthUser) => void;
   logout: () => void;
@@ -23,7 +27,13 @@ const STORAGE_KEY = "wayo_auth_user";
 function loadUser(): AuthUser | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as AuthUser;
+    const fresh = getAccounts().find((account) => account.id === parsed.id);
+    if (!fresh) return parsed;
+    const { password: _password, ...user } = fresh;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    return user;
   } catch {
     return null;
   }
@@ -46,6 +56,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string;
     name: string;
     children?: string;
+    phone: string;
+    birthDate: string;
+    address: string;
+    areaId: string;
   }) => {
     const result = registerAccount(payload);
     if (!result.ok) return result;

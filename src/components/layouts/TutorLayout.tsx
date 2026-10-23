@@ -1,7 +1,8 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import AppHeader from "../ui/AppHeader";
 import TabBar, { type TabItem } from "../ui/TabBar";
+import Icon from "../ui/Icon";
 
 const tabs: TabItem[] = [
   { to: "/tutor", label: "Home", icon: "home", exact: true },
@@ -21,12 +22,20 @@ export default function TutorLayout() {
         title={user?.name}
         subtitle="Tutor portal"
         right={
-          <button
-            onClick={() => { logout(); navigate("/login"); }}
-            className="text-xs text-muted hover:text-foreground font-medium"
-          >
-            Log out
-          </button>
+          <div className="flex items-center gap-3">
+            <Link to="/tutor/chats" aria-label="Chats" className="text-muted hover:text-foreground">
+              <Icon name="message" size={18} />
+            </Link>
+            <Link to="/tutor/me" aria-label="My page" className="text-muted hover:text-foreground">
+              <Icon name="profile" size={18} />
+            </Link>
+            <button
+              onClick={() => { logout(); navigate("/login"); }}
+              className="text-xs text-muted hover:text-foreground font-medium"
+            >
+              Log out
+            </button>
+          </div>
         }
       />
 

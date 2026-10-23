@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getTutorById, upsertTutorProfile } from "../../data/tutors";
 import { attachTutorIdToAccount } from "../../data/users";
+import { PLACES, placeById } from "../../data/places";
+
+const RADII = [1, 2, 5, 10];
 
 const SPECIALTY_OPTIONS = [
   { value: "미술", label: "Art" },
@@ -21,7 +24,9 @@ export default function TutorProfileSetupPage() {
   const [nameKo, setNameKo] = useState(existingTutor?.nameKo ?? "");
   const [affiliation, setAffiliation] = useState(existingTutor?.affiliation ?? "New Wayo tutor");
   const [role, setRole] = useState(existingTutor?.role ?? "Children's English play teacher");
-  const [location, setLocation] = useState(existingTutor?.location ?? "Seoul");
+  const [location, setLocation] = useState(existingTutor?.location ?? "서울 마포구");
+  const [areaId, setAreaId] = useState(user?.areaId ?? "mangwon");
+  const [radiusKm, setRadiusKm] = useState(existingTutor?.serviceRadiusKm ?? 5);
   const [hourlyRate, setHourlyRate] = useState(existingTutor?.hourlyRate ?? 23000);
   const [intro, setIntro] = useState(existingTutor?.intro ?? "Let's play and learn English together.");
   const [longIntro, setLongIntro] = useState(existingTutor?.longIntro ?? "Hello, I plan English play sessions around each child's pace.");
@@ -45,11 +50,15 @@ export default function TutorProfileSetupPage() {
       setError("Add a Korean name and at least one specialty.");
       return;
     }
+    const place = placeById(areaId);
     const tutor = upsertTutorProfile(user, {
       nameKo,
       affiliation,
       role,
-      location,
+      location: place ? `${place.district} ${place.label}` : location,
+      lat: place?.lat,
+      lng: place?.lng,
+      serviceRadiusKm: radiusKm,
       specialties,
       hourlyRate,
       intro,
@@ -78,7 +87,48 @@ export default function TutorProfileSetupPage() {
         <input value={nameKo} onChange={(e) => setNameKo(e.target.value)} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="Korean name (e.g. 엠마 존슨)" />
         <input value={affiliation} onChange={(e) => setAffiliation(e.target.value)} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="Affiliation" />
         <input value={role} onChange={(e) => setRole(e.target.value)} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="Role" />
-        <input value={location} onChange={(e) => setLocation(e.target.value)} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="Area" />
+        <div>
+          <p className="text-xs font-bold text-slate-500 mb-2">Home base</p>
+          <select
+            value={areaId}
+            onChange={(e) => {
+              setAreaId(e.target.value);
+              const place = placeById(e.target.value);
+              if (place) setLocation(`${place.district} ${place.label}`);
+            }}
+            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm"
+          >
+            {PLACES.map((place) => (
+              <option key={place.id} value={place.id}>{place.district} {place.label}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <p className="text-xs font-bold text-slate-500 mb-2">Travel range · {radiusKm} km</p>
+          <div className="relative mx-auto w-40 h-40 my-3">
+            {[10, 5, 2, 1].map((km) => (
+              <span
+                key={km}
+                className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border ${radiusKm >= km ? "border-primary/50 bg-primary/5" : "border-slate-200"}`}
+                style={{ width: `${km * 10}%`, height: `${km * 10}%` }}
+              />
+            ))}
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary" />
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {RADII.map((km) => (
+              <button
+                key={km}
+                type="button"
+                onClick={() => setRadiusKm(km)}
+                className={`py-2 rounded-full text-xs font-semibold border ${radiusKm === km ? "bg-primary text-white border-primary" : "bg-white border-slate-200 text-slate-500"}`}
+              >
+                {km} km
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-slate-500 mt-2">Parents and groups inside this circle can request a visit.</p>
+        </div>
         <input type="number" min={10000} step={1000} value={hourlyRate} onChange={(e) => setHourlyRate(Number(e.target.value))} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="Hourly rate (KRW)" />
         <textarea value={intro} onChange={(e) => setIntro(e.target.value)} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm" rows={2} placeholder="Short intro" />
         <textarea value={longIntro} onChange={(e) => setLongIntro(e.target.value)} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm" rows={4} placeholder="Longer intro" />

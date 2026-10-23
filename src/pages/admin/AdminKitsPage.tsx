@@ -1,4 +1,4 @@
-import { artKit, kitOrders, PARTNER } from "../../data/kits";
+import { artKit, listKitOrders, PARTNER } from "../../data/kits";
 
 const statusLabel: Record<string, { text: string; color: string }> = {
   pending: { text: "주문 접수", color: "bg-amber-50 text-amber-700" },
@@ -8,6 +8,7 @@ const statusLabel: Record<string, { text: string; color: string }> = {
 };
 
 export default function AdminKitsPage() {
+  const kitOrders = listKitOrders();
   const totalMargin = kitOrders.reduce((sum, o) => sum + o.margin, 0);
   const partnerShare = Math.round(PARTNER.monthlyRevenue * PARTNER.settlementRate);
   const wayoShare = PARTNER.monthlyRevenue - partnerShare;
@@ -82,7 +83,7 @@ export default function AdminKitsPage() {
                     {o.tutorName} · {o.week}주차 키트
                   </p>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    세션 {o.sessionDate} · {o.childName} · {o.deliveryTo === "tutor" ? "강사 수령" : "학부모 직배"}
+                    세션 {o.sessionDate} · {o.childName} · 학부모 집 {o.address}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">

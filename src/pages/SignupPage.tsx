@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, getRoleHome } from "../context/AuthContext";
 import AuthNav from "../components/AuthNav";
+import { PLACES } from "../data/places";
 
 type SignupRole = "parent" | "tutor";
 
@@ -12,6 +13,10 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [address, setAddress] = useState("");
+  const [areaId, setAreaId] = useState("hapjeong");
   const [children, setChildren] = useState("");
   const [error, setError] = useState("");
 
@@ -21,7 +26,7 @@ export default function SignupPage() {
       setError("비밀번호는 6자 이상 입력해주세요.");
       return;
     }
-    const result = signup({ role, name, email, password, children });
+    const result = signup({ role, name, email, password, children, phone, birthDate, address, areaId });
     if (!result.ok) {
       setError(result.message);
       return;
@@ -63,8 +68,22 @@ export default function SignupPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
-            <input value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder={role === "parent" ? "학부모 이름" : "원어민 이름"} />
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} placeholder="email@example.com" />
+            <input value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder={role === "parent" ? "이름" : "Name"} />
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} placeholder="이메일" />
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} className={inputClass} placeholder="휴대폰 번호" />
+            <label className="block text-xs font-semibold text-muted">
+              생년월일
+              <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className={`${inputClass} mt-1`} />
+            </label>
+            <input value={address} onChange={(e) => setAddress(e.target.value)} className={inputClass} placeholder={role === "parent" ? "수업 받을 주소" : "거주지 주소"} />
+            <label className="block text-xs font-semibold text-muted">
+              동네
+              <select value={areaId} onChange={(e) => setAreaId(e.target.value)} className={`${inputClass} mt-1`}>
+                {PLACES.map((place) => (
+                  <option key={place.id} value={place.id}>{place.district} {place.label}</option>
+                ))}
+              </select>
+            </label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} placeholder="비밀번호 (6자 이상)" />
             {role === "parent" && (
               <input value={children} onChange={(e) => setChildren(e.target.value)} className={inputClass} placeholder="자녀 정보 (예: 7세·5세)" />

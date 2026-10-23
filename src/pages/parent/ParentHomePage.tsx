@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getBookings, type Booking } from "../../data/bookings";
+import { kitOrderForSession, KIT_STATUS_LABEL } from "../../data/kits";
 import { getTutorById } from "../../data/tutors";
 import { premiumExamples, type PremiumExample } from "../../data/premiumExamples";
 import PremiumFeatureModal from "../../components/PremiumFeatureModal";
@@ -69,6 +70,7 @@ export default function ParentHomePage() {
     .sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
   const next = upcoming[0];
   const featured = live ?? next;
+  const featuredKit = featured && user ? kitOrderForSession(user.id, featured.tutorId, featured.date) : undefined;
   const done = mine.filter((b) => b.status === "completed").length;
 
   useEffect(() => {
@@ -132,6 +134,9 @@ export default function ParentHomePage() {
                 </p>
               </div>
             </div>
+            {featuredKit && (
+              <p className="text-[11px] font-semibold text-primary mt-3">키트 {featuredKit.week}주차 · {KIT_STATUS_LABEL[featuredKit.status]} · 집으로 배송</p>
+            )}
             {live && (
               <button type="button" onClick={() => setShowLocation(true)} className="btn-primary w-full py-2.5 text-sm mt-3">
                 위치 공유 보기
@@ -156,13 +161,13 @@ export default function ParentHomePage() {
             <span className="block text-[11px] text-muted">영어메이트</span>
           </span>
         </Link>
-        <Link to="/parent/subscription" className="card px-3.5 py-3 flex items-center gap-2.5">
+        <Link to="/parent/groups" className="card px-3.5 py-3 flex items-center gap-2.5">
           <span className="w-9 h-9 rounded-2xl bg-accent-50 text-accent flex items-center justify-center shrink-0">
-            <Icon name="crown" size={16} />
+            <Icon name="handshake" size={16} />
           </span>
           <span>
-            <span className="block text-sm font-semibold text-foreground">구독</span>
-            <span className="block text-[11px] text-muted">Wayo Pass</span>
+            <span className="block text-sm font-semibold text-foreground">같이하기</span>
+            <span className="block text-[11px] text-muted">동네 그룹</span>
           </span>
         </Link>
       </div>

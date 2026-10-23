@@ -7,6 +7,9 @@ import { createMatchingRequest } from "../data/matching";
 import { createBookingRequest } from "../data/bookings";
 import { canTutorAcceptMatching } from "../data/teacherVerification";
 import KitWeekPreview from "../components/KitWeekPreview";
+import { placeById } from "../data/places";
+import { coverageOf } from "../utils/distance";
+import { createLessonRequest, listLessonRequests } from "../data/lessonRequests";
 import TeacherVerificationParentCard from "../components/TeacherVerificationParentCard";
 import Icon from "../components/ui/Icon";
 
@@ -53,6 +56,8 @@ export default function TutorDetailPage() {
   const [matchingNote, setMatchingNote] = useState("");
   const [matchingMessage, setMatchingMessage] = useState("");
   const [bookingError, setBookingError] = useState("");
+  const [visitMessage, setVisitMessage] = useState("");
+  const [visitTick, setVisitTick] = useState(0);
 
   const matchingAllowed = tutor ? canTutorAcceptMatching(tutor.id).ok : false;
 
@@ -82,7 +87,13 @@ export default function TutorDetailPage() {
   const kitTotal = includeKit ? artKit.pricePerWeek * pkg.sessions : 0;
   const finalPrice = sessionPrice + kitTotal;
   const hasArtKit = supportsArtKit(tutor.specialties);
-  const canBook = Boolean(selectedDay && selectedTime && childName.trim());
+  const point = placeById(user?.areaId);
+  const coverage = coverageOf(tutor, point);
+  const inRange = coverage.ok;
+  const pendingVisit = listLessonRequests().some((item) => (
+    visitTick >= 0 && item.kind === "visit" && item.status === "pending" && item.tutorId === tutor.id && item.parentId === user?.id
+  ));
+  const canBook = Boolean(selectedDay && selectedTime && childName.trim() && inRange);
 
   const ratingDist = [5, 4, 3, 2, 1].map((star) => ({
     star,
@@ -157,6 +168,40 @@ export default function TutorDetailPage() {
       </section>
 
       <TeacherVerificationParentCard teacherId={tutor.id} />
+
+      <section className="card p-4">
+        <h2 className="text-sm font-semibold text-foreground">방문 수업 신청</h2>
+        <p className="text-xs text-muted mt-1 leading-relaxed">
+          {inRange
+            ? `${point?.label}까지 ${coverage.km}km. 선생님 이동 범위 ${tutor.serviceRadiusKm}km 안입니다. 신청 후 선생님이 수락하면 수업이 확정됩니다.`
+            : point
+              ? `${point.label}까지 ${coverage.km ?? "-"}km라 이동 범위 ${tutor.serviceRadiusKm}km 밖입니다.`
+              : "가입한 수업 동네가 있어야 방문 가능한 선생님에게 신청할 수 있습니다."}
+        </p>
+        {inRange && user && (
+          <button
+            type="button"
+            disabled={pendingVisit}
+            onClick={() => {
+              const result = createLessonRequest({
+                kind: "visit",
+                initiatedBy: "parent",
+                parentId: user.id,
+                tutorId: tutor.id,
+                tutorName: tutor.name,
+                placeLabel: point?.label ?? "",
+                distanceKm: coverage.km ?? 0,
+              });
+              setVisitMessage(result.message);
+              setVisitTick((n) => n + 1);
+            }}
+            className="btn-primary w-full py-3 text-sm mt-3 disabled:opacity-40"
+          >
+            {pendingVisit ? "수락 대기 중" : "방문 수업 신청"}
+          </button>
+        )}
+        {visitMessage && <p className="text-xs font-medium text-primary mt-2">{visitMessage}</p>}
+      </section>
 
       <section className="card p-4">
         <h2 className="text-sm font-semibold text-foreground">소개</h2>
@@ -282,9 +327,9 @@ export default function TutorDetailPage() {
             </p>
             <button
               type="button"
-              disabled={!matchingAllowed}
+              disabled={!matchingAllowed || !inRange}
               onClick={() => {
-                if (!user || !selectedTime || !bookingDate) return;
+                if (!user || !selectedTime || !bookingDate || !inRange) return;
                 setBookingError("");
                 const result = createBookingRequest({
                   parentId: user.id,
@@ -330,9 +375,9 @@ export default function TutorDetailPage() {
                 />
                 <button
                   type="button"
-                  disabled={!matchingAllowed}
+                  disabled={!matchingAllowed || !inRange}
                   onClick={() => {
-                    if (!user) return;
+                    if (!user || !inRange) return;
                     const result = createMatchingRequest({
                       parentId: user.id,
                       tutorId: tutor.id,

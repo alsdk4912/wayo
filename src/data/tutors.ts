@@ -1,7 +1,9 @@
 import { ensureVerificationRecord } from "./teacherVerification";
+import { placeForTutorLocation } from "./places";
 
 export interface Review {
   id: number;
+  bookingId?: string;
   parentName: string;
   childAge: string;
   childrenDesc: string;
@@ -29,6 +31,9 @@ export interface Tutor {
   rating: number;
   reviewCount: number;
   location: string;
+  lat?: number;
+  lng?: number;
+  serviceRadiusKm?: number;
   photo: string;
   intro: string;
   longIntro: string;
@@ -429,15 +434,68 @@ function saveTutors(list: Tutor[]) {
   localStorage.setItem(TUTOR_STORAGE_KEY, JSON.stringify(list));
 }
 
+function withServiceArea(tutor: Tutor): Tutor {
+  if (tutor.lat != null && tutor.lng != null && tutor.serviceRadiusKm) return tutor;
+  const place = placeForTutorLocation(tutor.location);
+  return {
+    ...tutor,
+    lat: tutor.lat ?? place?.lat,
+    lng: tutor.lng ?? place?.lng,
+    serviceRadiusKm: tutor.serviceRadiusKm ?? 5,
+  };
+}
+
 export function getTutors() {
   const stored = loadStoredTutors();
-  if (stored && stored.length > 0) return stored;
-  saveTutors(DEFAULT_TUTORS);
-  return DEFAULT_TUTORS;
+  const list = stored && stored.length > 0 ? stored : DEFAULT_TUTORS;
+  if (!stored || stored.length === 0) saveTutors(DEFAULT_TUTORS);
+  return list.map(withServiceArea);
 }
 
 export function getTutorById(tutorId: number) {
   return getTutors().find((t) => t.id === tutorId);
+}
+
+export function reviewForBooking(tutorId: number, bookingId: string) {
+  return getTutorById(tutorId)?.reviews.find((review) => review.bookingId === bookingId);
+}
+
+export function addSessionReview(input: {
+  tutorId: number;
+  bookingId: string;
+  parentName: string;
+  childName: string;
+  avatar?: string;
+  rating: number;
+  content: string;
+}) {
+  const content = input.content.trim();
+  if (input.rating < 1 || input.rating > 5) return { ok: false as const, message: "별점을 선택해 주세요." };
+  if (!content) return { ok: false as const, message: "후기를 입력해 주세요." };
+  const list = getTutors();
+  const tutor = list.find((item) => item.id === input.tutorId);
+  if (!tutor) return { ok: false as const, message: "강사를 찾을 수 없습니다." };
+  if (tutor.reviews.some((review) => review.bookingId === input.bookingId)) {
+    return { ok: false as const, message: "이 수업 후기는 이미 남겼습니다." };
+  }
+  const review: Review = {
+    id: Date.now(),
+    bookingId: input.bookingId,
+    parentName: input.parentName,
+    childAge: input.childName,
+    childrenDesc: input.childName,
+    rating: input.rating,
+    date: new Date().toISOString().slice(0, 10),
+    highlight: content.slice(0, 42),
+    content,
+    avatar: input.avatar ?? "",
+    keywords: [],
+  };
+  const reviewCount = tutor.reviewCount + 1;
+  const rating = Math.round(((tutor.rating * tutor.reviewCount + input.rating) / reviewCount) * 10) / 10;
+  const next = { ...tutor, reviews: [review, ...tutor.reviews], reviewCount, rating };
+  saveTutors(list.map((item) => (item.id === tutor.id ? next : item)));
+  return { ok: true as const, message: "후기를 남겼습니다." };
 }
 
 const DATE_SLOTS_KEY = "wayo_tutor_date_slots";
@@ -484,6 +542,9 @@ interface TutorProfileInput {
   affiliation: string;
   role: string;
   location: string;
+  lat?: number;
+  lng?: number;
+  serviceRadiusKm?: number;
   specialties: string[];
   hourlyRate: number;
   intro: string;
@@ -515,6 +576,9 @@ export function upsertTutorProfile(
     rating: existing?.rating ?? 5,
     reviewCount: existing?.reviewCount ?? 0,
     location: profile.location.trim(),
+    lat: profile.lat ?? existing?.lat,
+    lng: profile.lng ?? existing?.lng,
+    serviceRadiusKm: profile.serviceRadiusKm ?? existing?.serviceRadiusKm ?? 5,
     photo: existing?.photo ?? user.avatar ?? `https://i.pravatar.cc/300?u=${encodeURIComponent(user.id)}`,
     intro: profile.intro.trim(),
     longIntro: profile.longIntro.trim(),

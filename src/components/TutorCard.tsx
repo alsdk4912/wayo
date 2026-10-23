@@ -8,9 +8,10 @@ import StatusBadge from "./ui/StatusBadge";
 
 interface Props {
   tutor: Tutor;
+  distanceKm?: number | null;
 }
 
-export default function TutorCard({ tutor }: Props) {
+export default function TutorCard({ tutor, distanceKm }: Props) {
   const basicOk = isBasicVerified(tutor);
   const premiumOk = isPremiumVerified(tutor);
   const platformVerification = getParentVerificationSummary(tutor.id);
@@ -34,8 +35,13 @@ export default function TutorCard({ tutor }: Props) {
             <StatusBadge variant="basic" label="기본 인증" />
           ) : null}
         </div>
-        <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur text-foreground font-semibold text-sm px-3 py-1 rounded-lg shadow-sm">
-          ₩{tutor.hourlyRate.toLocaleString()}/h
+        <div className="absolute bottom-3 right-3 flex flex-col items-end gap-1">
+          {distanceKm != null && (
+            <span className="bg-primary text-white text-[11px] font-semibold px-2 py-0.5 rounded-full">{distanceKm}km</span>
+          )}
+          <span className="bg-white/95 backdrop-blur text-foreground font-semibold text-sm px-3 py-1 rounded-lg shadow-sm">
+            ₩{tutor.hourlyRate.toLocaleString()}/h
+          </span>
         </div>
       </div>
 

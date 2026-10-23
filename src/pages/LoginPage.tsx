@@ -85,7 +85,10 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-xs text-center mt-4">
+          <p className="text-xs text-center mt-4 space-x-3">
+            <Link to="/forgot" className="text-muted font-semibold hover:underline">
+              비밀번호 찾기
+            </Link>
             <Link to="/signup" className="text-primary font-semibold hover:underline">
               회원가입 · Sign up
             </Link>

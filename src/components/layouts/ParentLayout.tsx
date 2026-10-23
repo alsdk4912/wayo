@@ -1,7 +1,8 @@
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import AppHeader from "../ui/AppHeader";
 import TabBar, { type TabItem } from "../ui/TabBar";
+import Icon from "../ui/Icon";
 
 const tabs: TabItem[] = [
   { to: "/parent", label: "홈", icon: "home", exact: true },
@@ -11,7 +12,7 @@ const tabs: TabItem[] = [
 ];
 
 export default function ParentLayout() {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const lockedHome = useLocation().pathname === "/parent";
 
@@ -20,7 +21,12 @@ export default function ParentLayout() {
       <AppHeader
         right={
           <div className="flex items-center gap-3">
-            <span className="text-xs text-muted hidden sm:block">{user?.name}님</span>
+            <Link to="/parent/chats" aria-label="채팅" className="text-muted hover:text-foreground">
+              <Icon name="message" size={18} />
+            </Link>
+            <Link to="/parent/me" aria-label="마이페이지" className="text-muted hover:text-foreground">
+              <Icon name="profile" size={18} />
+            </Link>
             <button
               onClick={() => { logout(); navigate("/login"); }}
               className="text-xs text-muted hover:text-foreground font-medium"

@@ -24,6 +24,7 @@ export interface ArtKit {
 
 export interface KitOrder {
   id: string;
+  parentId: string;
   tutorId: number;
   tutorName: string;
   kitId: string;
@@ -35,8 +36,16 @@ export interface KitOrder {
   orderDate: string;
   sessionDate: string;
   childName: string;
-  deliveryTo: "tutor" | "parent";
+  address: string;
+  deliveryTo: "parent";
 }
+
+export const KIT_STATUS_LABEL: Record<KitOrder["status"], string> = {
+  pending: "주문 접수",
+  preparing: "준비 중",
+  shipped: "배송 중",
+  delivered: "도착",
+};
 
 export const PARTNER = {
   name: "아트스튜디오 이지",
@@ -56,7 +65,7 @@ export const artKit: ArtKit = {
   fullSetPrice: 88000,
   partner: PARTNER.name,
   partnerRole: PARTNER.role,
-  description: "미술학원 원장이 직접 제작한 주차별 교구·재료. 강사 준비 부담 없이 표준 커리큘럼으로 진행할 수 있어요.",
+  description: "미술학원 원장이 직접 제작한 주차별 교구·재료. 학부모가 집으로 주문하고, 강사는 도착한 키트의 수업 가이드를 확인합니다.",
   stock: 47,
   lowStockThreshold: 15,
   weeks: [
@@ -119,39 +128,12 @@ export const artKit: ArtKit = {
   ],
 };
 
-export const kitOrders: KitOrder[] = [
-  {
-    id: "ko1",
-    tutorId: 1,
-    tutorName: "Emma Johnson",
-    kitId: "art-basic-8w",
-    week: 3,
-    quantity: 1,
-    unitPrice: 12000,
-    margin: 4000,
-    status: "preparing",
-    orderDate: "2026-06-17",
-    sessionDate: "2026-06-20",
-    childName: "지우 (7세)",
-    deliveryTo: "tutor",
-  },
-  {
-    id: "ko2",
-    tutorId: 1,
-    tutorName: "Emma Johnson",
-    kitId: "art-basic-8w",
-    week: 4,
-    quantity: 1,
-    unitPrice: 12000,
-    margin: 4000,
-    status: "pending",
-    orderDate: "2026-06-17",
-    sessionDate: "2026-06-21",
-    childName: "서준 (6세)",
-    deliveryTo: "tutor",
-  },
+const KIT_ORDER_KEY = "wayo_kit_orders";
+
+const SEED_ORDERS: KitOrder[] = [
   {
     id: "ko3",
+    parentId: "parent-1",
     tutorId: 1,
     tutorName: "Emma Johnson",
     kitId: "art-basic-8w",
@@ -163,9 +145,70 @@ export const kitOrders: KitOrder[] = [
     orderDate: "2026-06-10",
     sessionDate: "2026-06-13",
     childName: "지우 (7세)",
-    deliveryTo: "tutor",
+    address: "서울 마포구 합정동 123",
+    deliveryTo: "parent",
   },
 ];
+
+function loadKitOrders(): KitOrder[] {
+  try {
+    const raw = localStorage.getItem(KIT_ORDER_KEY);
+    if (!raw) {
+      localStorage.setItem(KIT_ORDER_KEY, JSON.stringify(SEED_ORDERS));
+      return SEED_ORDERS.map((order) => ({ ...order }));
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed as KitOrder[] : SEED_ORDERS.map((order) => ({ ...order }));
+  } catch {
+    return [];
+  }
+}
+
+export function listKitOrders() {
+  return loadKitOrders().sort((a, b) => b.sessionDate.localeCompare(a.sessionDate));
+}
+
+export function kitOrderForSession(parentId: string, tutorId: number, sessionDate: string) {
+  return listKitOrders().find((order) => order.parentId === parentId && order.tutorId === tutorId && order.sessionDate === sessionDate);
+}
+
+export function createKitOrder(input: {
+  parentId: string;
+  tutorId: number;
+  tutorName: string;
+  week: number;
+  sessionDate: string;
+  childName: string;
+  address: string;
+}) {
+  const week = artKit.weeks.find((item) => item.week === input.week);
+  if (!week) return { ok: false as const, message: "키트 주차를 선택해 주세요." };
+  if (!input.address.trim()) return { ok: false as const, message: "배송받을 주소를 마이페이지에 저장해 주세요." };
+  const list = loadKitOrders();
+  const duplicate = list.find((order) => (
+    order.parentId === input.parentId && order.tutorId === input.tutorId && order.sessionDate === input.sessionDate
+  ));
+  if (duplicate) return { ok: false as const, message: "이 수업 키트는 이미 주문했습니다." };
+  const order: KitOrder = {
+    id: `ko-${Date.now()}`,
+    parentId: input.parentId,
+    tutorId: input.tutorId,
+    tutorName: input.tutorName,
+    kitId: artKit.id,
+    week: input.week,
+    quantity: 1,
+    unitPrice: artKit.pricePerWeek,
+    margin: artKit.pricePerWeek - artKit.costPerWeek,
+    status: "pending",
+    orderDate: new Date().toISOString().slice(0, 10),
+    sessionDate: input.sessionDate,
+    childName: input.childName,
+    address: input.address.trim(),
+    deliveryTo: "parent",
+  };
+  localStorage.setItem(KIT_ORDER_KEY, JSON.stringify([order, ...list]));
+  return { ok: true as const, order, message: "키트를 주문했습니다. 학부모 집으로 배송됩니다." };
+}
 
 export function getKitMargin(unitPrice: number, cost: number) {
   return unitPrice - cost;
